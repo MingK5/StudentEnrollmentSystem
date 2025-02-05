@@ -23,11 +23,12 @@ body {
 /* Logo centered at the top */
 .logo-container {
     text-align: center;
-    flex-grow: 1;
+    margin-bottom: 20px;
 }
 
 .logo {
-    max-width: 150px; /* Adjust size as needed */
+    max-width: 150px;
+    height: auto;
 }
 
 /* Logout button on the right */
