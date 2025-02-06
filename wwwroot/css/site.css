@@ -12,6 +12,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+    position: relative;
 }
 
 /* Student info aligned to the left */
@@ -22,6 +23,7 @@ body {
 
 /* Logo centered at the top */
 .logo-container {
+    flex: 1;
     text-align: center;
 }
 
@@ -32,13 +34,20 @@ body {
 
 /* Logout button on the right */
 .logout-button {
-    text-align: right;
+    display: inline-block;
+    width: auto; /* Allow button to fit text size */
+    min-width: 100px; /* Ensure it doesn’t shrink too much */
+    max-width: 150px; /* Prevent stretching */
+    padding: 10px 20px;
+    text-align: center;
     background-color: red;
     color: white;
-    padding: 10px;
+    font-weight: bold;
     border: none;
     cursor: pointer;
-    font-weight: bold;
+    position: absolute;
+    right: 20px;
+    top: 15px;
 }
 
 /* Ensure sections are aligned correctly */

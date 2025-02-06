@@ -3,3 +3,221 @@
 @{
     Layout = "_Layout";
 }
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h2 class="text-center">Update Profile</h2>
+
+<div class="container">
+    <form method="post" asp-page="/Account/UpdateProfile" class="profile-form">
+        <input type="hidden" asp-for="Student.StudentId" />
+        <input type="hidden" asp-for="Student.StudentName" />
+        <input type="hidden" asp-for="Student.Password" />
+        <fieldset class="section">
+            <legend>Permanent Home Address</legend>
+            <div class="form-grid">
+                <label>Address:</label>
+                <textarea asp-for="Student.HomeAddress" class="form-control"></textarea>
+
+                <label>Postcode:</label>
+                <input type="text" asp-for="Student.HomePostcode" class="form-control" />
+
+                <label>City:</label>
+                <input type="text" asp-for="Student.HomeCity" class="form-control" />
+
+                <label>Country:</label>
+                <select id="homeCountry" asp-for="Student.HomeCountry" class="form-control country-dropdown" data-selected="@Model.Student.HomeCountry">
+                    <option value="">Select Country</option>
+                </select>
+
+                <label>State:</label>
+                <select id="homeState" asp-for="Student.HomeState" class="form-control state-dropdown" data-selected="@Model.Student.HomeState">
+                    <option value="">Select State</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset class="section">
+            <legend>Current Mailing Address</legend>
+            <div class="form-grid">
+                <label>Address:</label>
+                <textarea asp-for="Student.MailAddress" class="form-control"></textarea>
+
+                <label>Postcode:</label>
+                <input type="text" asp-for="Student.MailPostcode" class="form-control" />
+
+                <label>City:</label>
+                <input type="text" asp-for="Student.MailCity" class="form-control" />
+
+                <label>Country:</label>
+                <select id="mailCountry" asp-for="Student.MailCountry" class="form-control country-dropdown" data-selected="@Model.Student.MailCountry">
+                    >
+                    <option value="">Select Country</option>
+                </select>
+
+                <label>State:</label>
+                <select id="mailState" asp-for="Student.MailState" class="form-control state-dropdown" data-selected="@Model.Student.MailState">
+                    <option value="">Select State</option>
+                </select>
+            </div>
+        </fieldset>
+
+        <fieldset class="section">
+            <legend>Contact Information</legend>
+            <div class="form-grid">
+                <label>Primary Email:</label>
+                <input type="email" asp-for="Student.PrimaryEmail" class="form-control" />
+
+                <label>Alternative Email:</label>
+                <input type="email" asp-for="Student.AlternativeEmail" class="form-control" />
+
+                <label>Emergency Contact Relationship:</label>
+                <select asp-for="Student.EmergencyContactRelationship" class="form-control">
+                    <option value="Father">Father</option>
+                    <option value="Mother">Mother</option>
+                    <option value="Guardian">Guardian</option>
+                    <option value="Friend">Friend</option>
+                    <option value="Relative">Relative</option>
+                </select>
+
+                <label>Emergency Contact Person:</label>
+                <input type="text" asp-for="Student.EmergencyContactPerson" class="form-control" />
+
+                <label>Emergency Contact HP:</label>
+                <input type="text" asp-for="Student.EmergencyContactHp" class="form-control" />
+            </div>
+        </fieldset>
+
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='/Main'">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let countryStateData;
+
+        // Load JSON file and populate countries
+        $.getJSON('/JSON/CountryState.json', function (data) {
+            countryStateData = data;
+            populateCountries();
+            restoreSelectedValues();
+        });
+
+        function populateCountries() {
+            $('.country-dropdown').each(function () {
+                let select = $(this);
+                let selectedCountry = select.attr("data-selected"); // Get the value from data attribute
+
+                select.empty().append(new Option("Select Country", ""));
+                $.each(countryStateData, function (country, states) {
+                    let option = new Option(country, country);
+                    if (country === selectedCountry) {
+                        option.selected = true; // Select the correct country
+                    }
+                    select.append(option);
+                });
+
+                // Populate the states for the selected country
+                let stateDropdown = select.closest('.form-grid').find('.state-dropdown');
+                populateStates(select, stateDropdown);
+            });
+        }
+
+        function populateStates(countryDropdown, stateDropdown) {
+            let country = countryDropdown.val();
+            let selectedState = stateDropdown.attr("data-selected");
+
+            stateDropdown.empty().append(new Option("Select State", ""));
+
+            if (country && countryStateData[country]) {
+                $.each(countryStateData[country], function (index, state) {
+                    let option = new Option(state, state);
+                    if (state === selectedState) {
+                        option.selected = true; // Select the correct state
+                    }
+                    stateDropdown.append(option);
+                });
+            }
+        }
+
+        function restoreSelectedValues() {
+            $('.country-dropdown').each(function () {
+                let countryDropdown = $(this);
+                let stateDropdown = $(this).closest('.form-grid').find('.state-dropdown');
+
+                populateStates(countryDropdown, stateDropdown);
+            });
+        }
+
+        $('.country-dropdown').change(function () {
+            let countryDropdown = $(this);
+            let stateDropdown = $(this).closest('.form-grid').find('.state-dropdown');
+
+            populateStates(countryDropdown, stateDropdown);
+        });
+    });
+</script>
+
+<style>
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow-y: auto;
+    }
+
+    .profile-form {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #f9f9f9;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+        align-items: center;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    button {
+        width: 48%;
+        padding: 10px;
+        font-size: 16px;
+        font-weight: bold;
+    }
+</style>

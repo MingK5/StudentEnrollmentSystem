@@ -38,21 +38,29 @@ namespace StudentEnrollmentSystem.Pages
 
             var student = _context.Students.FirstOrDefault(s => s.StudentId == StudentId);
 
-            // Ensure student exists and check hashed password
-            if (student == null || !BCrypt.Net.BCrypt.Verify(Password, student.Password))
+            // Ensure student exists
+            if (student == null)
             {
                 ErrorMessage = "Invalid Student ID or Password.";
                 return Page();
             }
 
-            // **Retrieve program from the database**
+            // Verify hashed password
+            if (!BCrypt.Net.BCrypt.Verify(Password, student.Password))
+            {
+                ErrorMessage = "Invalid Student ID or Password.";
+                return Page();
+            }
+
+            // **Handle NULL values properly**
+            string studentName = student.StudentName ?? "Unknown";
             string studentProgram = student.Program ?? "Unknown";
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, student.StudentName),
+                new Claim(ClaimTypes.Name, studentName),
                 new Claim(ClaimTypes.NameIdentifier, student.StudentId),
-                new Claim("Program", student.Program)  // **Include Program in Claims**
+                new Claim("Program", studentProgram)  // **Fixed to prevent NULL values**
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

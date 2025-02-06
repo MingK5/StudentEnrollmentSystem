@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-// ✅ Add HttpContextAccessor to fix the issue
+// Add HttpContextAccessor to fix the issue
 builder.Services.AddHttpContextAccessor();
 
 // Add database context using the connection string from appsettings.json
