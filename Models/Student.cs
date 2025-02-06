@@ -68,7 +68,17 @@ namespace StudentEnrollmentSystem.Models
         [Column("emergencyContactRelationship")]
         public string? EmergencyContactRelationship { get; set; }
 
+        [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid emergency contact number with country code (e.g., 60164915163)")]
         [Column("emergencyContactHp")]
         public string? EmergencyContactHp { get; set; }
+
+        [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid phone number with country code (e.g., 60164915163)")]
+        [Column("phoneNo")]
+        public string? PhoneNo { get; set; }
+
+        [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid mobile number with country code (e.g., 60164915163)")]
+        [Column("mobileNo")]
+        public string? MobileNo { get; set; }
+
     }
 }

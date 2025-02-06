@@ -65,73 +65,55 @@ namespace StudentEnrollmentSystem.Pages.Account
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("[ERROR] Model state is invalid!");
+                string errorMessages = "<strong>Please correct the following errors:</strong><ul>";
 
                 foreach (var state in ModelState)
                 {
                     foreach (var error in state.Value.Errors)
                     {
                         Console.WriteLine($"[VALIDATION ERROR] {state.Key}: {error.ErrorMessage}");
+                        errorMessages += $"<li>{error.ErrorMessage}</li>";
                     }
                 }
+                errorMessages += "</ul>";
 
-                return Page();
+                // Store error messages in TempData to be shown via Bootstrap alert
+                TempData["ErrorMessage"] = errorMessages;
+                return Page(); // Stop submission if validation fails
             }
+
+            Console.WriteLine("[DEBUG] No validation errors. Processing form...");
 
             var user = HttpContext.User;
             string studentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
-            Console.WriteLine($"[DEBUG] Form submitted with StudentId: '{studentId}'");
-
             if (string.IsNullOrEmpty(studentId))
             {
-                Console.WriteLine("[ERROR] StudentId is NULL in POST request. Form is broken.");
+                Console.WriteLine("[ERROR] StudentId is NULL in POST request.");
                 return RedirectToPage("/Login");
             }
 
             var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId);
-
             if (existingStudent == null)
             {
                 Console.WriteLine($"[ERROR] Student with ID {studentId} not found in database!");
                 return NotFound();
             }
 
-            // Ensure StudentId, StudentName, and Password are not overwritten with NULL
-            Student.StudentId = existingStudent.StudentId;
-            Student.StudentName = existingStudent.StudentName; // Retain name
-            Student.Password = existingStudent.Password; // Retain password
-
-            Console.WriteLine($"[DEBUG] Retaining Student Name: {Student.StudentName}");
-            Console.WriteLine($"[DEBUG] Retaining Password Hash");
-
-            // Update database fields
-            existingStudent.HomeAddress = Student.HomeAddress;
-            existingStudent.HomePostcode = Student.HomePostcode;
-            existingStudent.HomeCity = Student.HomeCity;
-            existingStudent.HomeState = Student.HomeState;
-            existingStudent.HomeCountry = Student.HomeCountry;
-
-            existingStudent.MailAddress = Student.MailAddress;
-            existingStudent.MailPostcode = Student.MailPostcode;
-            existingStudent.MailCity = Student.MailCity;
-            existingStudent.MailState = Student.MailState;
-            existingStudent.MailCountry = Student.MailCountry;
-
+            // Retain key student information
             existingStudent.PrimaryEmail = Student.PrimaryEmail;
             existingStudent.AlternativeEmail = Student.AlternativeEmail;
-            existingStudent.EmergencyContactRelationship = Student.EmergencyContactRelationship;
-            existingStudent.EmergencyContactPerson = Student.EmergencyContactPerson;
+            existingStudent.PhoneNo = Student.PhoneNo;
+            existingStudent.MobileNo = Student.MobileNo;
             existingStudent.EmergencyContactHp = Student.EmergencyContactHp;
 
-            // Save changes in database
+            // Save changes
             _context.Students.Update(existingStudent);
             await _context.SaveChangesAsync();
 
             Console.WriteLine("[SUCCESS] Profile updated successfully!");
-
             TempData["SuccessMessage"] = "Profile updated successfully!";
             return RedirectToPage();
         }
-
     }
 }
