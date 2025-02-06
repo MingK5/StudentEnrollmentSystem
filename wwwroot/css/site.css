@@ -9,9 +9,9 @@ body {
 /* Aligns the student info, logo, and logout button in a row */
 .header-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 15px;
+    justify-content: space-between;
+    padding: 10px;
 }
 
 /* Student info aligned to the left */
@@ -23,7 +23,6 @@ body {
 /* Logo centered at the top */
 .logo-container {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 .logo {
@@ -33,6 +32,7 @@ body {
 
 /* Logout button on the right */
 .logout-button {
+    text-align: right;
     background-color: red;
     color: white;
     padding: 10px;

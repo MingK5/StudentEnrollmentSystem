@@ -45,10 +45,14 @@ namespace StudentEnrollmentSystem.Pages
                 return Page();
             }
 
+            // **Retrieve program from the database**
+            string studentProgram = student.Program ?? "Unknown";
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, student.StudentName),
-                new Claim(ClaimTypes.NameIdentifier, student.StudentId)
+                new Claim(ClaimTypes.NameIdentifier, student.StudentId),
+                new Claim("Program", student.Program)  // **Include Program in Claims**
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

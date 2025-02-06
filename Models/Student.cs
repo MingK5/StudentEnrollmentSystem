@@ -22,5 +22,8 @@ namespace StudentEnrollmentSystem.Models
         [Required]
         [Column("password")]  // Matches "password" in SSMS
         public string Password { get; set; } = string.Empty;
+
+        [Column("program")]
+        public string Program { get; set; } = "Unknown";  // Default value if null
     }
 }

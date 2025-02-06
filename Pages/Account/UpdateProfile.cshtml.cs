@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Authentication;
-using System.Threading.Tasks;
 
-namespace StudentEnrollmentSystem.Pages
+namespace StudentEnrollmentSystem.Pages.Account
 {
-    public class AddDropHistoryModel : PageModel
+    public class UpdateProfileModel : PageModel
     {
         public string StudentName { get; set; } = string.Empty;
         public string StudentId { get; set; } = string.Empty;
@@ -30,3 +28,4 @@ namespace StudentEnrollmentSystem.Pages
         }
     }
 }
+
