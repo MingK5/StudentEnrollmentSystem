@@ -12,18 +12,26 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+    width: 100%;
     position: relative;
 }
 
 /* Student info aligned to the left */
 .student-info {
-    text-align: left;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: normal;
+    color: #333;
+    width: 100px;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 /* Logo centered at the top */
 .logo-container {
-    flex: 1;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Align vertically */
+    flex: 1; /* Allows the logo container to grow and center properly */
     text-align: center;
 }
 

@@ -115,6 +115,8 @@ namespace StudentEnrollmentSystem.Pages.Account
             existingStudent.AlternativeEmail = Student.AlternativeEmail;
             existingStudent.PhoneNo = Student.PhoneNo;
             existingStudent.MobileNo = Student.MobileNo;
+            existingStudent.EmergencyContactRelationship = Student.EmergencyContactRelationship;
+            existingStudent.EmergencyContactPerson = Student.EmergencyContactPerson;
             existingStudent.EmergencyContactHp = Student.EmergencyContactHp;
 
             // Save changes
