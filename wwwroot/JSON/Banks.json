@@ -1,0 +1,9 @@
+{
+    "banks": [
+        { "code": "CIMB", "name": "CIMB : CIMB BANK" },
+        { "code": "ABB", "name": "ABB : AFFIN BANK BERHAD" },
+        { "code": "AMMB", "name": "AMMB : AMBANK BERHAD" },
+        { "code": "HLB", "name": "HLB : HONG LEONG BANK BHD" },
+        { "code": "MBB", "name": "MBB : MAYBANK BERHAD" }
+    ]
+}

@@ -3,3 +3,95 @@
 @{
     Layout = "_Layout";
 }
+
+<h2 class="text-center">Update Bank Details</h2>
+
+@if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(ViewData["BankErrorMessage"] as string))
+{
+    <div class="alert alert-danger">
+        @ViewData["BankErrorMessage"]
+    </div>
+}
+
+<form method="post" id="updateBankForm">
+    <input type="hidden" asp-for="StudentId" />
+    <input type="hidden" asp-for="StudentName" />
+    <input type="hidden" asp-for="Program" />
+
+    <fieldset class="section">
+        <legend>Bank Information</legend>
+
+        <div class="bank-name-container">
+            <label>Bank Name:</label>
+            <span id="bankError" class="text-danger ms-2" style="display:none; font-weight:bold;">Please select a valid bank.</span>
+        </div>
+
+        <select id="bankDropdown" name="BankName" asp-for="BankName" class="form-control">
+            <option value="">Select Bank</option>
+        </select>
+
+        <label>Bank Account No:</label>
+        <input type="text" asp-for="BankAccount" class="form-control" required />
+
+        <label>Bank Holder Name:</label>
+        <input type="text" asp-for="BankHolderName" class="form-control" required />
+    </fieldset>
+
+    <div class="button-container">
+        <button type="submit" class="btn btn-primary">Save Bank Details</button>
+        <button type="button" class="btn btn-secondary" onclick="window.location.href='/Main'">Cancel</button>
+    </div>
+</form>
+
+<!-- jQuery (Ensure this is included in your layout if not already present) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        let selectedBank = @Html.Raw(Json.Serialize(Model.BankName)); // Get selected bank from Razor Model
+
+        $.getJSON('/JSON/Banks.json', function (data) {
+            let bankDropdown = $('#bankDropdown');
+
+            // Populate dropdown with banks
+            $.each(data.banks, function (index, bank) {
+                let option = $('<option></option>').attr('value', bank.code).text(bank.name);
+
+                // Auto-select previously saved bank
+                if (bank.code === selectedBank) {
+                    option.attr("selected", "selected");
+                }
+
+                bankDropdown.append(option);
+            });
+        }).fail(function () {
+            console.error('Error loading bank list from JSON.');
+        });
+
+        // Client-side validation on form submit
+        $("#updateBankForm").submit(function (e) {
+            let selectedBank = $("#bankDropdown").val();
+            if (!selectedBank) {
+                e.preventDefault();
+                $("#bankError").show();
+            } else {
+                $("#bankError").hide();
+            }
+        });
+    });
+</script>
+
+<style>
+    .bank-name-container {
+        display: flex;
+        align-items: center;
+        gap: 10px; /* Spacing between label and error message */
+    }
+</style>

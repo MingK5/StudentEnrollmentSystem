@@ -26,11 +26,12 @@
 <h2 class="text-center">Update Profile</h2>
 
 <div class="container">
-    <form method="post" asp-page="/Account/UpdateProfile" class="profile-form" novalidate>
+    <form method="post" asp-page="/Account/UpdateProfile" class="profile-form" id="profile-form" novalidate>
         <input type="hidden" asp-for="Student.StudentId" />
         <input type="hidden" asp-for="Student.StudentName" />
         <input type="hidden" asp-for="Student.Password" />
 
+        <!-- Permanent Home Address -->
         <fieldset class="section">
             <legend>Permanent Home Address</legend>
             <label>Address:</label>
@@ -53,6 +54,7 @@
             </select>
         </fieldset>
 
+        <!-- Current Mailing Address -->
         <fieldset class="section">
             <legend>Current Mailing Address</legend>
             <label>Address:</label>
@@ -75,44 +77,20 @@
             </select>
         </fieldset>
 
+        <!-- Contact Information -->
         <fieldset class="section">
             <legend>Contact Information</legend>
-
-            <label>
-                Primary Email:
-                @if (ModelState.ContainsKey("Student.PrimaryEmail") && ModelState["Student.PrimaryEmail"].Errors.Count > 0)
-                {
-                    <span class="text-danger">*</span>
-                }
-            </label>
+            <label>Primary Email:</label>
             <input type="email" asp-for="Student.PrimaryEmail" class="form-control @(ModelState.ContainsKey("Student.PrimaryEmail") && ModelState["Student.PrimaryEmail"].Errors.Count > 0 ? "input-error" : "")" />
 
-            <label>
-                Alternative Email:
-                @if (ModelState.ContainsKey("Student.AlternativeEmail") && ModelState["Student.AlternativeEmail"].Errors.Count > 0)
-                {
-                    <span class="text-danger">*</span>
-                }
-            </label>
+            <label>Alternative Email:</label>
             <input type="email" asp-for="Student.AlternativeEmail" class="form-control @(ModelState.ContainsKey("Student.AlternativeEmail") && ModelState["Student.AlternativeEmail"].Errors.Count > 0 ? "input-error" : "")" />
 
-            <label>
-                Phone No:
-                @if (ModelState.ContainsKey("Student.PhoneNo") && ModelState["Student.PhoneNo"].Errors.Count > 0)
-                {
-                    <span class="text-danger">*</span>
-                }
-            </label>
+            <label>Phone No:</label>
             <input type="text" asp-for="Student.PhoneNo" class="form-control @(ModelState.ContainsKey("Student.PhoneNo") && ModelState["Student.PhoneNo"].Errors.Count > 0 ? "input-error" : "")" />
             <small class="info-text">Enter numbers only with country code (e.g., 60164915163)</small>
 
-            <label>
-                Mobile No:
-                @if (ModelState.ContainsKey("Student.MobileNo") && ModelState["Student.MobileNo"].Errors.Count > 0)
-                {
-                    <span class="text-danger">*</span>
-                }
-            </label>
+            <label>Mobile No:</label>
             <input type="text" asp-for="Student.MobileNo" class="form-control @(ModelState.ContainsKey("Student.MobileNo") && ModelState["Student.MobileNo"].Errors.Count > 0 ? "input-error" : "")" />
             <small class="info-text">Enter numbers only with country code (e.g., 60164915163)</small>
 
@@ -128,16 +106,9 @@
             <label>Emergency Contact Person:</label>
             <input type="text" asp-for="Student.EmergencyContactPerson" class="form-control" />
 
-            <label>
-                Emergency Contact HP:
-                @if (ModelState.ContainsKey("Student.EmergencyContactHp") && ModelState["Student.EmergencyContactHp"].Errors.Count > 0)
-                {
-                    <span class="text-danger">*</span>
-                }
-            </label>
+            <label>Emergency Contact HP:</label>
             <input type="text" asp-for="Student.EmergencyContactHp" class="form-control @(ModelState.ContainsKey("Student.EmergencyContactHp") && ModelState["Student.EmergencyContactHp"].Errors.Count > 0 ? "input-error" : "")" />
             <small class="info-text">Enter numbers only with country code (e.g., 60164915163)</small>
-
         </fieldset>
 
         <div class="button-container">
@@ -152,6 +123,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    // Retain phone validation from original script
     function validatePhoneFormat(input) {
         let phoneRegex = /^[0-9]{10,15}$/; // Only allows digits, 10 to 15 characters
         if (!phoneRegex.test(input.value)) {
@@ -160,6 +132,7 @@
             input.setCustomValidity(""); // Clear error message when valid
         }
     }
+
     $(document).ready(function () {
         let countryStateData;
 
@@ -214,6 +187,115 @@
             populateStates(countryDropdown, stateDropdown);
         });
     });
+
+    // Form validation before submit
+    document.getElementById("profile-form").addEventListener("submit", function (event) {
+        let isValid = true;
+        let errorMessages = "<strong>Please correct the following errors:</strong><ul>";
+
+        // Remove previous error highlights
+        document.querySelectorAll(".form-control, .country-dropdown, .state-dropdown").forEach(input => {
+            input.classList.remove("input-error");
+        });
+
+        // Mandatory fields and their user-friendly labels
+        const requiredFields = {
+            "HomeAddress": "Home Address",
+            "HomePostcode": "Home Postcode",
+            "HomeCity": "Home City",
+            "HomeCountry": "Home Country",
+            "HomeState": "Home State",
+            "MailAddress": "Mailing Address",
+            "MailPostcode": "Mailing Postcode",
+            "MailCity": "Mailing City",
+            "MailCountry": "Mailing Country",
+            "MailState": "Mailing State",
+            "PrimaryEmail": "Primary Email",
+            "PhoneNo": "Phone Number",
+            "MobileNo": "Mobile Number",
+            "EmergencyContactRelationship": "Emergency Contact Relationship",
+            "EmergencyContactPerson": "Emergency Contact Person",
+            "EmergencyContactHp": "Emergency Contact Phone"
+        };
+
+        // Check for missing required fields
+        Object.keys(requiredFields).forEach(field => {
+            let input = document.getElementById(`Student_${field}`);
+            if (input && input.value.trim() === "") {
+                isValid = false;
+                input.classList.add("input-error");
+                errorMessages += `<li>${requiredFields[field]} is required.</li>`;
+            }
+        });
+
+        // Validate Country & State Dropdowns
+        document.querySelectorAll("select.country-dropdown, select.state-dropdown").forEach(select => {
+            if (select.value.trim() === "" || select.value.includes("Select")) {
+                isValid = false;
+                select.classList.add("input-error");
+                let labelText = select.previousElementSibling.textContent.trim();
+                errorMessages += `<li>${labelText} must be selected.</li>`;
+            }
+        });
+
+        // Validate email format (HTML5 validation)
+        document.querySelectorAll("[type='email']").forEach(input => {
+            if (!input.validity.valid) {
+                isValid = false;
+                input.classList.add("input-error");
+                let labelText = input.previousElementSibling.textContent.trim();
+                errorMessages += `<li>Enter a valid email address for ${labelText}.</li>`;
+            }
+        });
+
+        // Validate phone number format (Regex allowed)
+        document.querySelectorAll("[type='text']").forEach(input => {
+            if (input.value && (input.id.includes("PhoneNo") || input.id.includes("MobileNo") || input.id.includes("EmergencyContactHp"))) {
+                let phoneRegex = /^[0-9]{10,15}$/;
+                if (!phoneRegex.test(input.value)) {
+                    isValid = false;
+                    input.classList.add("input-error");
+                    let labelText = input.previousElementSibling.textContent.trim();
+                    errorMessages += `<li>Enter a valid phone number with country code for ${labelText} (e.g., 60164915163).</li>`;
+                }
+            }
+        });
+
+        if (!isValid) {
+            errorMessages += "</ul>";
+
+            // Show the error message in the existing Bootstrap alert box
+            let errorBox = document.querySelector(".alert-danger");
+            if (!errorBox) {
+                // Create an error alert if not found
+                errorBox = document.createElement("div");
+                errorBox.className = "alert alert-danger alert-dismissible fade show";
+                errorBox.setAttribute("role", "alert");
+                errorBox.innerHTML = `
+                    <strong>Error:</strong>
+                    <ul id="error-list">${errorMessages}</ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.querySelector(".container").insertAdjacentElement("afterbegin", errorBox);
+            } else {
+                // Update the error message if the alert box already exists
+                errorBox.innerHTML = `
+                    <strong>Error:</strong>
+                    <ul id="error-list">${errorMessages}</ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                errorBox.style.display = "block";
+            }
+
+            // **Scroll to the top to show the error box**
+            window.scrollTo({ top: 0, behavior: "smooth" });
+
+            // Prevent form submission
+            event.preventDefault();
+            return false;
+        }
+    });
+
 </script>
 
 <style>
@@ -261,5 +343,10 @@
         padding: 10px;
         font-size: 16px;
         font-weight: bold;
+    }
+
+    .input-error {
+        border: 2px solid red;
+        background-color: #ffe6e6;
     }
 </style>

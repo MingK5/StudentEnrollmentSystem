@@ -101,6 +101,16 @@ namespace StudentEnrollmentSystem.Pages.Account
             }
 
             // Retain key student information
+            existingStudent.HomeAddress = Student.HomeAddress;
+            existingStudent.HomePostcode = Student.HomePostcode;
+            existingStudent.HomeCity = Student.HomeCity;
+            existingStudent.HomeCountry = Student.HomeCountry;
+            existingStudent.HomeState = Student.HomeState;
+            existingStudent.MailAddress = Student.MailAddress;
+            existingStudent.MailPostcode = Student.MailPostcode;
+            existingStudent.MailCity = Student.MailCity;
+            existingStudent.MailCountry = Student.MailCountry;
+            existingStudent.MailState = Student.MailState;
             existingStudent.PrimaryEmail = Student.PrimaryEmail;
             existingStudent.AlternativeEmail = Student.AlternativeEmail;
             existingStudent.PhoneNo = Student.PhoneNo;
