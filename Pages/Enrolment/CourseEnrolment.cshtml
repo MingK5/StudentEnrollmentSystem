@@ -3,3 +3,74 @@
 @{
     Layout = "_Layout";
 }
+<h2>Enrolment</h2>
+
+<div style="max-width:900px">
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Student ID </label>
+            <label>: @Model.StudentId</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">School </label>
+            <label>: @Model.Student.School</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Student Name </label>
+            <label>: @Model.StudentName</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Level </label>
+            <label>: @Model.Student.Level</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">IC/Passport No </label>
+            <label>: @Model.Student.IdentificationNo</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Program </label>
+            <label>: @Model.Student.Program</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Study Mode </label>
+            <label>: @Model.Student.StudyMode</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Session </label>
+            <label>: @Model.Student.Program</label>
+        </div>
+    </div>
+</div>
+
+<br/>
+<br/>
+
+<div style="color:red;font-weight:bold;text-decoration:underline">Courses Summary</div>
+<div style="padding:1px 0">Please select course(s) to be enrolled in:</div>
+
+<button style="background-color:#bbf089; border-radius:8px; font-weight:500">Add course</button>
+
+<style>
+    .info-row {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .info-label {
+        width:300px
+    }
+
+    .info-title {
+        width: 120px;
+        font-weight:bold
+    }
+</style>

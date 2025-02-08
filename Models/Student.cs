@@ -7,29 +7,57 @@ namespace StudentEnrollmentSystem.Models
     public class Student
     {
         [Key]
-        [Column("studentId")]  // Matches the exact column name in SSMS
+        [Column("studentId")]
         public string StudentId { get; set; } = string.Empty;
 
-        [Required]
-        [Column("studentName")]  // Matches "studentName" in SSMS
-        public string StudentName { get; set; } = string.Empty;
+        [Column("email")]
+        public string? Email { get; set; }  
+
+        [Column("identificationNo")]
+        public string? IdentificationNo { get; set; }
 
         [Required]
-        [Column("password")]  // Matches "password" in SSMS
+        [Column("password")]
         public string Password { get; set; } = string.Empty;
 
-        [EmailAddress]
-        [Column("primaryEmail")]
-        public string? PrimaryEmail { get; set; }  // Nullable
+        [Column("address")]
+        public string Address { get; set; } = string.Empty;
 
-        [EmailAddress]
-        [Column("alternativeEmail")]
-        public string? AlternativeEmail { get; set; }  // Nullable
+        [Column("emergencyContactPerson")]
+        public string? EmergencyContactPerson { get; set; }
+
+        [Column("emergencyContactRelationship")]
+        public string? EmergencyContactRelationship { get; set; }
+
+        [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid emergency contact number with country code (e.g., 60164915163)")]
+        [Column("emergencyContactHp")]
+        public string? EmergencyContactHp { get; set; }
+
+        [Column("bankName")]
+        public string? BankName { get; set; }
+
+        [Column("bankAccount")]
+        public string? BankAccount { get; set; }
+
+        [Column("bankHolderName")]
+        public string? BankHolderName { get; set; }
+
+        [Column("studyMode")]
+        public string? StudyMode { get; set; }
+
+        [Column("school")]
+        public string? School { get; set; } 
+
+        [Column("level")]
+        public string? Level { get; set; }
 
         [Column("program")]
-        public string? Program { get; set; } = "Unknown";  // Nullable with default
+        public string? Program { get; set; } = "Unknown";
 
-        // Home Address Fields (Nullable)
+        [Required]
+        [Column("studentName")]
+        public string StudentName { get; set; } = string.Empty;
+
         [Column("homeAddress")]
         public string? HomeAddress { get; set; }
 
@@ -45,7 +73,6 @@ namespace StudentEnrollmentSystem.Models
         [Column("homeCountry")]
         public string? HomeCountry { get; set; }
 
-        // Mailing Address Fields (Nullable)
         [Column("mailAddress")]
         public string? MailAddress { get; set; }
 
@@ -61,16 +88,13 @@ namespace StudentEnrollmentSystem.Models
         [Column("mailCountry")]
         public string? MailCountry { get; set; }
 
-        // Emergency Contact Fields (Nullable)
-        [Column("emergencyContactPerson")]
-        public string? EmergencyContactPerson { get; set; }
+        [EmailAddress]
+        [Column("primaryEmail")]
+        public string? PrimaryEmail { get; set; }
 
-        [Column("emergencyContactRelationship")]
-        public string? EmergencyContactRelationship { get; set; }
-
-        [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid emergency contact number with country code (e.g., 60164915163)")]
-        [Column("emergencyContactHp")]
-        public string? EmergencyContactHp { get; set; }
+        [EmailAddress]
+        [Column("alternativeEmail")]
+        public string? AlternativeEmail { get; set; }
 
         [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid phone number with country code (e.g., 60164915163)")]
         [Column("phoneNo")]
