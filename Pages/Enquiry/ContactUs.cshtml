@@ -2,4 +2,64 @@
 @model StudentEnrollmentSystem.Pages.Enquiry.ContactUsModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Contact Us";
 }
+
+<h2 class="text-center">Contact Us</h2>
+<br />
+
+<!-- Add a container to match the width of the form -->
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Success and Error Messages inside the same width container -->
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success text-center">
+                    @Model.SuccessMessage
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger text-center">
+                    @Model.ErrorMessage
+                </div>
+            }
+
+            <div class="card shadow-sm p-4">
+                <div class="card-body">
+
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="Category">Category</label>
+                            <select class="form-control" id="Category" asp-for="Category" required>
+                                <option value="">-- Select a category --</option>
+                                <option value="Registry">Registry - For enrolment related matters</option>
+                                <option value="Scholarship">Scholarship - For internal scholarships, PTPTN, MARA study loans</option>
+                                <option value="Finance">Finance - For payment related matters</option>
+                            </select>
+                        </div>
+                        <br />
+
+                        <div class="form-group">
+                            <label for="Subject">Subject</label>
+                            <input type="text" class="form-control" id="Subject" asp-for="Subject" required />
+                        </div>
+                        <br />
+
+                        <div class="form-group">
+                            <label for="Message">Message</label>
+                            <textarea class="form-control" id="Message" asp-for="Message" rows="5" required></textarea>
+                        </div>
+                        <br />
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Send</button>
+                            <a asp-page="/Main" class="btn btn-secondary">Back</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
