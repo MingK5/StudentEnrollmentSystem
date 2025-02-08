@@ -123,15 +123,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    // Retain phone validation from original script
-    function validatePhoneFormat(input) {
-        let phoneRegex = /^[0-9]{10,15}$/; // Only allows digits, 10 to 15 characters
-        if (!phoneRegex.test(input.value)) {
-            input.setCustomValidity("Please enter a valid phone number with country code (e.g., 60164915163)");
-        } else {
-            input.setCustomValidity(""); // Clear error message when valid
-        }
-    }
+    // Perform Validation
 
     $(document).ready(function () {
         let countryStateData;
