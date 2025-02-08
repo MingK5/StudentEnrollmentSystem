@@ -3,3 +3,105 @@
 @{
     Layout = "_Layout";
 }
+
+<h2 class="text-center">Student Evaluation</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="courseSelect">Course Enrolled:</label>
+        <select id="courseSelect" asp-for="SelectedCourseId" asp-items="Model.CourseList" class="form-control" required>
+            <option value="">-- Select Course --</option>
+        </select>
+    </div>
+
+    <div id="courseDetails" style="display: none;">
+        <h4>Course Details</h4>
+        <p><strong>Course ID:</strong> <span id="courseId"></span></p>
+        <p><strong>Course Name:</strong> <span id="courseName"></span></p>
+        <p><strong>Credit:</strong> <span id="credit"></span></p>
+        <p><strong>Lecturer:</strong> <span id="lecturer"></span></p>
+        <p><strong>Start Time:</strong> <span id="startTime"></span></p>
+        <p><strong>End Time:</strong> <span id="endTime"></span></p>
+        <p><strong>Day:</strong> <span id="day"></span></p>
+    </div>
+
+    <button type="button" id="proceedBtn" class="btn btn-primary" style="display: none;">Proceed</button>
+    <button type="button" id="backBtn" class="btn btn-secondary" style="display: none;">Back</button>
+
+    <div id="evaluationForm" style="display: none;">
+        <h4>Evaluation Form</h4>
+        <label>Organization Rate:</label>
+        <select class="form-control" asp-for="Evaluation.OrganizationRate">
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+        </select>
+
+        <label>Clarity Rate:</label>
+        <select class="form-control" asp-for="Evaluation.ClarityRate">
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+        </select>
+
+        <label>Material Rate:</label>
+        <select class="form-control" asp-for="Evaluation.MaterialRate">
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+        </select>
+
+        <label>Comments:</label>
+        <textarea class="form-control" asp-for="Evaluation.Comments"></textarea>
+
+        <button type="submit" class="btn btn-success mt-3">Submit</button>
+        <button type="button" class="btn btn-danger mt-3" id="cancelBtn">Cancel</button>
+    </div>
+</form>
+
+<script>
+    document.getElementById("courseSelect").addEventListener("change", function() {
+        var courseId = this.value;
+        if (courseId) {
+            fetch(`/Enquiry/StudentEvaluation?handler=GetCourseDetails&courseId=${courseId}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("courseId").innerText = data.courseId;
+                    document.getElementById("courseName").innerText = data.courseName;
+                    document.getElementById("credit").innerText = data.credit;
+                    document.getElementById("lecturer").innerText = data.lecturer;
+                    document.getElementById("startTime").innerText = data.startTime;
+                    document.getElementById("endTime").innerText = data.endTime;
+                    document.getElementById("day").innerText = data.day;
+
+                    document.getElementById("courseDetails").style.display = "block";
+                    document.getElementById("proceedBtn").style.display = "inline-block";
+                });
+        } else {
+            document.getElementById("courseDetails").style.display = "none";
+            document.getElementById("proceedBtn").style.display = "none";
+        }
+    });
+
+    document.getElementById("proceedBtn").addEventListener("click", function() {
+        document.getElementById("evaluationForm").style.display = "block";
+        document.getElementById("proceedBtn").style.display = "none";
+        document.getElementById("backBtn").style.display = "inline-block";
+    });
+
+    document.getElementById("backBtn").addEventListener("click", function() {
+        document.getElementById("evaluationForm").style.display = "none";
+        document.getElementById("proceedBtn").style.display = "inline-block";
+        document.getElementById("backBtn").style.display = "none";
+    });
+
+    document.getElementById("cancelBtn").addEventListener("click", function() {
+        location.reload();
+    });
+</script>

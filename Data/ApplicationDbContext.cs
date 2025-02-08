@@ -11,6 +11,10 @@ namespace StudentEnrollmentSystem.Data
 
         // Define the tables (DbSets)
         public DbSet<Student> Students { get; set; } = null!;
+        public DbSet<Enrol> Enrolments { get; set; }
+        public DbSet<Evaluation> Evaluations { get; set; }  
+        public DbSet<Course> Courses { get; set; }
+        
         public DbSet<StudentAccount> StudentAccounts { get; set; } = null!; // Add StudentAccount table
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
