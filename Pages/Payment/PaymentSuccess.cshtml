@@ -1,0 +1,33 @@
+﻿@page
+@model StudentEnrollmentSystem.Pages.Payment.PaymentSuccessModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Payment Successful";
+}
+
+<h2 class="text-center">Payment Successful! Redirecting...</h2>
+
+<script>
+    setTimeout(() => {
+        window.location.href = "/Payment/Payment";
+    }, 3000); // Redirect back after 3 seconds
+</script>
+
+<style>
+    .success-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        font-size: 24px;
+        color: green;
+    }
+</style>
+
+<div class="success-container">
+    <p>Payment has been successfully recorded.</p>
+    <p>You will be redirected shortly...</p>
+</div>

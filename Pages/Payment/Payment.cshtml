@@ -2,4 +2,120 @@
 @model StudentEnrollmentSystem.Pages.Payment.PaymentModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Payment";
 }
+
+<h2 class="text-center">Payment</h2>
+
+<div class="payment-container">
+    <table class="payment-table">
+        <tr>
+            <td><strong>Student Name:</strong></td>
+            <td>@Model.StudentName</td>
+        </tr>
+        <tr>
+            <td><strong>Matriculation No:</strong></td>
+            <td>@Model.StudentId</td>
+        </tr>
+        <tr>
+            <td><strong>Identification No:</strong></td>
+            <td>@Model.IdentificationNo</td>
+        </tr>
+        <tr>
+            <td><strong>Program:</strong></td>
+            <td>@Model.Program</td>
+        </tr>
+        <tr>
+            <td><strong>Session:</strong></td>
+            <td>@Model.Session</td>
+        </tr>
+    </table>
+
+    <h3>Pending Payment Details</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Process</th>
+                <th>Particulars</th>
+                <th>Document No</th>
+                <th>Transaction Date</th>
+                <th>Amount (RM)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Model.PendingTransactions)
+            {
+                <tr>
+                    <td>@transaction.Process</td>
+                    <td>@transaction.Particulars</td>
+                    <td>@transaction.DocumentNo</td>
+                    <td>@transaction.TransactionDate.ToString("yyyy-MM-dd")</td>
+                    <td>@transaction.Amount.ToString("0.00")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Net Amount Payable: RM @Model.NetAmount.ToString("0.00")</h3>
+
+    @if (Model.NetAmount <= 0)
+    {
+        <p style="color: red; font-weight: bold;">There are no pending items to pay.</p>
+    }
+    else
+    {
+        <form method="post">
+            <input type="hidden" name="NetAmount" value="@Model.NetAmount" />
+            <input type="hidden" name="StudentId" value="@Model.StudentId" />
+            <button type="submit" asp-page-handler="Pay" class="btn btn-primary">Pay by Credit/Debit Card/FPX</button>
+            <button type="submit" asp-page-handler="Cancel" class="btn btn-secondary">Cancel</button>
+        </form>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            alert("@TempData["ErrorMessage"]");
+        </script>
+    }
+
+</div>
+
+<style>
+    .payment-container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-table {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .table th, .table td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        margin: 10px 5px;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        background-color: red;
+        color: white;
+        border: none;
+    }
+
+    .btn-secondary {
+        background-color: gray;
+        color: white;
+        border: none;
+    }
+</style>

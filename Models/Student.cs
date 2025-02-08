@@ -10,18 +10,12 @@ namespace StudentEnrollmentSystem.Models
         [Column("studentId")]
         public string StudentId { get; set; } = string.Empty;
 
-        [Column("email")]
-        public string? Email { get; set; }  
-
         [Column("identificationNo")]
         public string? IdentificationNo { get; set; }
 
         [Required]
         [Column("password")]
         public string Password { get; set; } = string.Empty;
-
-        [Column("address")]
-        public string Address { get; set; } = string.Empty;
 
         [Column("emergencyContactPerson")]
         public string? EmergencyContactPerson { get; set; }
