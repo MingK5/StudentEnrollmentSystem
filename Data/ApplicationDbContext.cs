@@ -10,6 +10,10 @@ namespace StudentEnrollmentSystem.Data
         }
 
         public DbSet<Student> Students { get; set; } = null!;
+        public DbSet<Enrol> Enrolments { get; set; }
+        public DbSet<Evaluation> Evaluations { get; set; }  
+        public DbSet<Course> Courses { get; set; }
+        
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
