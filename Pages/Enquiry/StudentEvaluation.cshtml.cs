@@ -17,22 +17,22 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         public StudentEvaluationModel(ApplicationDbContext context)
         {
             _context = context;
-            CourseList = new List<SelectListItem>(); // Initialize CourseList
+            CourseList = new List<SelectListItem>();
+            Evaluation = new Evaluation();
         }
 
         public string StudentName { get; set; } = string.Empty;
         public string StudentId { get; set; } = string.Empty;
         public string Program { get; set; } = string.Empty;
-
         public List<SelectListItem> CourseList { get; set; }
+
         [BindProperty]
         public string SelectedCourseId { get; set; } = string.Empty;
 
-        public Course SelectedCourse { get; set; }
         [BindProperty]
-        public Evaluation Evaluation { get; set; } = new();
+        public Evaluation Evaluation { get; set; }
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             var user = HttpContext.User;
             if (user == null || !user.Identity?.IsAuthenticated == true)
@@ -46,46 +46,114 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             if (_context.Enrolments != null && _context.Courses != null && _context.Evaluations != null)
             {
-                CourseList = _context.Enrolments
-                    .Where(e => e.StudentId == StudentId &&
-                                !_context.Evaluations.Any(ev => ev.StudentId == StudentId && ev.CourseId == e.CourseId))
+                var enrolledCourses = await _context.Enrolments
+                    .Where(e => e.StudentId == StudentId)
+                    .Select(e => new
+                    {
+                        e.EnrolId,
+                        e.CourseId,
+                        e.DatePerformed
+                    })
+                    .ToListAsync();
+
+                var evaluatedEnrollments = await _context.Evaluations
+                    .Select(ev => ev.EnrolId)
+                    .ToListAsync();
+
+                CourseList = enrolledCourses
+                    .Where(e => e.CourseId != null && !evaluatedEnrollments.Contains(e.EnrolId))
                     .Select(e => new SelectListItem
                     {
                         Value = e.CourseId,
-                        Text = _context.Courses.Where(c => c.CourseId == e.CourseId)
-                                    .Select(c => c.CourseName)
-                                    .FirstOrDefault() ?? "Unknown"
-                    }).ToList();
-
+                        Text = _context.Courses
+                            .Where(c => c.CourseId == e.CourseId)
+                            .Select(c => c.CourseName)
+                            .FirstOrDefault() ?? "Unknown Course"
+                    })
+                    .ToList();
             }
 
             return Page();
         }
 
-        public async Task<JsonResult> OnGetGetCourseDetails(string courseId)
+        public async Task<JsonResult> OnGetGetCourseDetailsAsync(string courseId)
         {
-            var course = await _context.Courses
+            var courseData = await _context.Courses
                 .Where(c => c.CourseId == courseId)
-                .Select(c => new { c.CourseId, c.CourseName, c.Credit, c.Lecturer, c.StartTime, c.EndTime, c.Day })
                 .FirstOrDefaultAsync();
 
+            if (courseData == null)
+            {
+                return new JsonResult(null);
+            }
+
+            var course = new
+            {
+                courseData.CourseId,
+                courseData.CourseName,
+                courseData.Credit,
+                courseData.Lecturer,
+                CourseFee = courseData.CourseFee.ToString("F2"),  // Convert decimal to string with 2 decimal places
+                StartTime = courseData.StartTime.HasValue
+                    ? $"{courseData.StartTime.Value.Hours:D2}:{courseData.StartTime.Value.Minutes:D2}"
+                    : "N/A",
+                EndTime = courseData.EndTime.HasValue
+                    ? $"{courseData.EndTime.Value.Hours:D2}:{courseData.EndTime.Value.Minutes:D2}"
+                    : "N/A",
+                courseData.Day
+            };
+
             return new JsonResult(course);
+
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
-                return Page();
+                return new JsonResult(new { success = false, message = "Invalid form data." });
             }
 
-            Evaluation.StudentId = StudentId;
-            Evaluation.CourseId = SelectedCourseId;
+            var user = HttpContext.User;
+            StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
-            _context.Evaluations.Add(Evaluation);
-            await _context.SaveChangesAsync();
+            if (string.IsNullOrEmpty(StudentId))
+            {
+                return new JsonResult(new { success = false, message = "User authentication failed. Please log in again." });
+            }
 
-            return RedirectToPage("/Enquiry/StudentEvaluation");
+            var enrolment = await _context.Enrolments
+                .Where(e => e.StudentId == StudentId && e.CourseId == SelectedCourseId)
+                .FirstOrDefaultAsync();
+
+            if (enrolment == null)
+            {
+                return new JsonResult(new { success = false, message = "You are not enrolled in this course." });
+            }
+
+            // Ensure evaluation is linked to the correct enrolment
+            Evaluation.EnrolId = enrolment.EnrolId;
+
+            try
+            {
+                _context.Evaluations.Add(Evaluation);
+                await _context.SaveChangesAsync();
+                return new JsonResult(new { success = true, message = "Evaluation submitted successfully." });
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine($"DbUpdateException: {ex.Message}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                }
+                return new JsonResult(new { success = false, message = "An error occurred while saving your evaluation. Please try again." });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = $"Unexpected error: {ex.Message}" });
+            }
         }
+
     }
 }

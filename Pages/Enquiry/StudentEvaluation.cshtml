@@ -6,7 +6,7 @@
 
 <h2 class="text-center">Student Evaluation</h2>
 
-<form method="post">
+<form method="post" id="evaluationForm">
     <div class="form-group">
         <label for="courseSelect">Course Enrolled:</label>
         <select id="courseSelect" asp-for="SelectedCourseId" asp-items="Model.CourseList" class="form-control" required>
@@ -14,24 +14,34 @@
         </select>
     </div>
 
-    <div id="courseDetails" style="display: none;">
-        <h4>Course Details</h4>
-        <p><strong>Course ID:</strong> <span id="courseId"></span></p>
-        <p><strong>Course Name:</strong> <span id="courseName"></span></p>
-        <p><strong>Credit:</strong> <span id="credit"></span></p>
-        <p><strong>Lecturer:</strong> <span id="lecturer"></span></p>
-        <p><strong>Start Time:</strong> <span id="startTime"></span></p>
-        <p><strong>End Time:</strong> <span id="endTime"></span></p>
-        <p><strong>Day:</strong> <span id="day"></span></p>
+    <div class="container mt-4">
+        <div id="courseDetails" class="card shadow p-4" hidden>
+            <h4 class="mb-3 text-primary">Course Details</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Course ID:</strong> <span id="courseId"></span></p>
+                    <p><strong>Course Name:</strong> <span id="courseName"></span></p>
+                    <p><strong>Credit:</strong> <span id="credit"></span></p>
+                    <p><strong>Lecturer:</strong> <span id="lecturer"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Start Time:</strong> <span id="startTime"></span></p>
+                    <p><strong>End Time:</strong> <span id="endTime"></span></p>
+                    <p><strong>Day:</strong> <span id="day"></span></p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <button type="button" id="proceedBtn" class="btn btn-primary" style="display: none;">Proceed</button>
-    <button type="button" id="backBtn" class="btn btn-secondary" style="display: none;">Back</button>
+    <div class="mt-3" id="buttonContainer" hidden>
+        <button type="button" id="proceedBtn" class="btn btn-primary">Proceed</button>
+    </div>
 
-    <div id="evaluationForm" style="display: none;">
+    <div id="evaluationSection" hidden>
         <h4>Evaluation Form</h4>
         <label>Organization Rate:</label>
         <select class="form-control" asp-for="Evaluation.OrganizationRate">
+            <option value="">-- Select rate --</option>
             <option value="1">1 - Poor</option>
             <option value="2">2 - Fair</option>
             <option value="3">3 - Good</option>
@@ -41,6 +51,7 @@
 
         <label>Clarity Rate:</label>
         <select class="form-control" asp-for="Evaluation.ClarityRate">
+            <option value="">-- Select rate --</option>
             <option value="1">1 - Poor</option>
             <option value="2">2 - Fair</option>
             <option value="3">3 - Good</option>
@@ -50,6 +61,7 @@
 
         <label>Material Rate:</label>
         <select class="form-control" asp-for="Evaluation.MaterialRate">
+            <option value="">-- Select rate --</option>
             <option value="1">1 - Poor</option>
             <option value="2">2 - Fair</option>
             <option value="3">3 - Good</option>
@@ -58,50 +70,109 @@
         </select>
 
         <label>Comments:</label>
-        <textarea class="form-control" asp-for="Evaluation.Comments"></textarea>
+        <textarea class="form-control" asp-for="Evaluation.Comment"></textarea>
 
         <button type="submit" class="btn btn-success mt-3">Submit</button>
-        <button type="button" class="btn btn-danger mt-3" id="cancelBtn">Cancel</button>
     </div>
 </form>
 
 <script>
-    document.getElementById("courseSelect").addEventListener("change", function() {
-        var courseId = this.value;
-        if (courseId) {
-            fetch(`/Enquiry/StudentEvaluation?handler=GetCourseDetails&courseId=${courseId}`)
+    document.addEventListener("DOMContentLoaded", function () {
+        const courseSelect = document.getElementById("courseSelect");
+        const courseDetailsDiv = document.getElementById("courseDetails");
+        const proceedBtn = document.getElementById("proceedBtn");
+        const evaluationSection = document.getElementById("evaluationSection");
+        const buttonContainer = document.getElementById("buttonContainer");
+
+        let evaluatedCourses = [];
+
+        courseSelect.addEventListener("change", function () {
+            const courseId = this.value;
+
+            if (evaluatedCourses.includes(courseId)) {
+                alert("This course has already been evaluated.");
+                courseSelect.value = ""; // Reset selection
+                return;
+            }
+
+            if (courseId) {
+                fetch(/Enquiry/StudentEvaluation?handler=GetCourseDetails&courseId=${courseId})
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            document.getElementById("courseId").innerText = data.courseId || "N/A";
+                            document.getElementById("courseName").innerText = data.courseName || "N/A";
+                            document.getElementById("credit").innerText = data.credit || "N/A";
+                            document.getElementById("lecturer").innerText = data.lecturer || "N/A";
+                            document.getElementById("startTime").innerText = data.startTime || "N/A";
+                            document.getElementById("endTime").innerText = data.endTime || "N/A";
+                            document.getElementById("day").innerText = data.day || "N/A";
+
+                            courseDetailsDiv.hidden = false;
+                            buttonContainer.hidden = false;
+                        } else {
+                            resetCourseDetails();
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching course details:", error);
+                        resetCourseDetails();
+                    });
+            } else {
+                resetCourseDetails();
+            }
+        });
+
+        function resetCourseDetails() {
+            courseDetailsDiv.hidden = true;
+            buttonContainer.hidden = true;
+            evaluationSection.hidden = true;
+        }
+
+        proceedBtn.addEventListener("click", function () {
+            courseDetailsDiv.hidden = true;
+            buttonContainer.hidden = true;
+            evaluationSection.hidden = false;
+        });
+
+            document.getElementById("evaluationForm").addEventListener("submit", function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const formData = new FormData(this);
+                fetch("/Enquiry/StudentEvaluation", {
+                    method: "POST",
+                    body: formData
+                })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("courseId").innerText = data.courseId;
-                    document.getElementById("courseName").innerText = data.courseName;
-                    document.getElementById("credit").innerText = data.credit;
-                    document.getElementById("lecturer").innerText = data.lecturer;
-                    document.getElementById("startTime").innerText = data.startTime;
-                    document.getElementById("endTime").innerText = data.endTime;
-                    document.getElementById("day").innerText = data.day;
-
-                    document.getElementById("courseDetails").style.display = "block";
-                    document.getElementById("proceedBtn").style.display = "inline-block";
+                    console.log("Response Data:", data); // Debugging
+                    if (data.success) {
+                        alert("Evaluation submitted successfully!");
+                        evaluatedCourses.push(courseSelect.value);
+                        updateDropdown();
+                        window.location.href = "/Enquiry/StudentEvaluation";
+                    } else {
+                        alert("Error: " + (data.message || "Submission failed."));
+                    }
+                })
+                .catch(error => {
+                    console.error("Submission error:", error);
+                    alert("An error occurred. Please try again.");
                 });
-        } else {
-            document.getElementById("courseDetails").style.display = "none";
-            document.getElementById("proceedBtn").style.display = "none";
+            });
+
+
+        function updateDropdown() {
+            const options = courseSelect.options;
+            for (let i = options.length - 1; i >= 0; i--) {
+                if (evaluatedCourses.includes(options[i].value)) {
+                    options[i].remove();
+                }
+            }
+
+            if (options.length === 1) {
+                alert("All enrolled courses have been evaluated.");
+            }
         }
-    });
-
-    document.getElementById("proceedBtn").addEventListener("click", function() {
-        document.getElementById("evaluationForm").style.display = "block";
-        document.getElementById("proceedBtn").style.display = "none";
-        document.getElementById("backBtn").style.display = "inline-block";
-    });
-
-    document.getElementById("backBtn").addEventListener("click", function() {
-        document.getElementById("evaluationForm").style.display = "none";
-        document.getElementById("proceedBtn").style.display = "inline-block";
-        document.getElementById("backBtn").style.display = "none";
-    });
-
-    document.getElementById("cancelBtn").addEventListener("click", function() {
-        location.reload();
     });
 </script>

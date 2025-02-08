@@ -10,25 +10,22 @@ namespace StudentEnrollmentSystem.Models
         [Column("evaluationId")]
         public int EvaluationId { get; set; }
 
-        [Column("studentId")]
-        public string StudentId { get; set; } = string.Empty;
-
-        [Column("courseId")]
-        public string CourseId { get; set; } = string.Empty;
-
         [Column("organizationRate")]
         [Range(1, 5)]
-        public int OrganizationRate { get; set; }  
+        public int OrganizationRate { get; set; }
 
         [Column("clarityRate")]
         [Range(1, 5)]
-        public int ClarityRate { get; set; }  
+        public int ClarityRate { get; set; }
 
         [Column("materialRate")]
         [Range(1, 5)]
-        public int MaterialRate { get; set; }  
+        public int MaterialRate { get; set; }
 
-        [Column("comments")]
-        public string? Comments { get; set; }
+        [Column("comment")]
+        public string? Comment { get; set; }
+
+        [Column("enrolId")]
+        public int EnrolId { get; set; }
     }
 }

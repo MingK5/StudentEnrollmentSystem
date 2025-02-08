@@ -20,13 +20,13 @@ namespace StudentEnrollmentSystem.Models
         public string Lecturer { get; set; } = string.Empty;
 
         [Column("courseFee")]
-        public string CourseFee { get; set; } = string.Empty;
+        public decimal CourseFee { get; set; }
 
         [Column("startTime")]
-        public string StartTime { get; set; } = string.Empty;
+        public TimeSpan? StartTime { get; set; }
 
         [Column("endTime")]
-        public string EndTime { get; set; } = string.Empty;
+        public TimeSpan? EndTime { get; set; }
 
         [Column("day")]
         public string Day { get; set; } = string.Empty;

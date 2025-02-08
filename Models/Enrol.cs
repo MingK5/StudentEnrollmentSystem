@@ -10,6 +10,9 @@ namespace StudentEnrollmentSystem.Models
         [Column("enrolId")]
         public int EnrolId { get; set; }
 
+        [Column("session")]
+        public string Session { get; set; } = string.Empty;
+
         [Column("studentId")]
         public string StudentId { get; set; } = string.Empty;
 
@@ -17,7 +20,7 @@ namespace StudentEnrollmentSystem.Models
         public string CourseId { get; set; } = string.Empty;
 
         [Column("reason")]
-        public string Reason { get; set; } = string.Empty;
+        public string? Reason { get; set; }
 
         [Column("action")]
         public string Action { get; set; } = string.Empty;
@@ -26,6 +29,6 @@ namespace StudentEnrollmentSystem.Models
         public string Status { get; set; } = string.Empty;
 
         [Column("datePerformed")]
-        public string DatePerformed { get; set; } = string.Empty;
+        public DateTime? DatePerformed { get; set; }
     }
 }
