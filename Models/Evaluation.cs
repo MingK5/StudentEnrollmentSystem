@@ -9,7 +9,6 @@ namespace StudentEnrollmentSystem.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("evaluationId")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int EvaluationId { get; set; }
 
         [Column("organizationRate")]
