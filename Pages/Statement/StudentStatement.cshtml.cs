@@ -1,31 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using StudentEnrollmentSystem.Data;
+using StudentEnrollmentSystem.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace StudentEnrollmentSystem.Pages.Statement
 {
     public class StudentStatementModel : PageModel
     {
-        public string StudentName { get; set; } = string.Empty;
-        public string StudentId { get; set; } = string.Empty;
-        public string Program { get; set; } = string.Empty;
+        private readonly ApplicationDbContext _context;
 
-        public IActionResult OnGet()
+        public StudentStatementModel(ApplicationDbContext context)
         {
-            var user = HttpContext.User;
+            _context = context;
+        }
 
-            // Redirect to Login if user is not authenticated
-            if (user == null || !user.Identity.IsAuthenticated)
+        public List<StudentAccount> Transactions { get; set; } = new();
+
+        public async Task<IActionResult> OnGetFilterTransactionsAsync(string dateFrom, string dateTo)
+        {
+            if (string.IsNullOrEmpty(dateFrom) || string.IsNullOrEmpty(dateTo))
             {
-                return RedirectToPage("/Login");
+                return new JsonResult(new List<StudentAccount>());
             }
 
-            // Fetch user details from Claims
-            StudentName = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
-            StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-            Program = user.FindFirst("Program")?.Value ?? "Unknown";
+            DateTime startDate = DateTime.Parse(dateFrom);
+            DateTime endDate = DateTime.Parse(dateTo).AddDays(1).AddSeconds(-1); // Extend to end of the day
 
-            return Page();
+            var transactions = await _context.StudentAccounts
+                .Where(s => s.Status == "Approved" && s.TransactionDate >= startDate && s.TransactionDate <= endDate)
+                .OrderBy(s => s.TransactionDate)
+                .ToListAsync();
+
+            return new JsonResult(transactions);
         }
     }
 }
-
