@@ -2,4 +2,47 @@
 @model StudentEnrollmentSystem.Pages.Statement.RegistrationSummaryModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Registration Summary";
+}
+
+<h2>Registration Summary</h2>
+
+<!-- Student Information Section -->
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Student Details</h5>
+        <p><strong>Name:</strong> @Model.StudentName</p>
+        <p><strong>Student ID:</strong> @Model.StudentId</p>
+        <p><strong>Program:</strong> @Model.Program</p>
+    </div>
+</div>
+
+<!-- Enrolled Courses Section -->
+@if (Model.EnrolledCourses != null && Model.EnrolledCourses.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Lecturer</th>
+                <th>Credit Hrs</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model.EnrolledCourses)
+            {
+                <tr>
+                    <td>@course.CourseId</td>
+                    <td>@course.CourseName</td>
+                    <td>@course.Lecturer</td>
+                    <td class="text-center">@course.Credit</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No enrolled courses found.</p>
 }
