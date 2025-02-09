@@ -18,7 +18,20 @@
         window.onunload = function () { null };
     </script>
 </head>
+
 <body>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <script>
+            alert('@TempData["ErrorMessage"]');
+        </script>
+    }
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <script>
+            alert('@TempData["SuccessMessage"]');
+        </script>
+    }
     <div class="main-container">
         <!-- Header Section -->
         <div class="header-container">

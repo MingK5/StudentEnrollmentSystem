@@ -25,6 +25,7 @@ namespace StudentEnrollmentSystem.Data
             modelBuilder.Entity<Student>().ToTable("Student");
             modelBuilder.Entity<StudentAccount>().ToTable("StudentAccount");
             modelBuilder.Entity<Evaluation>().ToTable("Evaluation");
+            modelBuilder.Entity<Enrol>().ToTable("Enrol");
         }
     }
 }

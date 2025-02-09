@@ -10,6 +10,7 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
     public class CourseEnrolmentModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
         [BindProperty]
         public Student Student { get; set; } = new Student();
@@ -17,10 +18,17 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
         public string StudentName { get; set; } = string.Empty;
         public string StudentId { get; set; } = string.Empty;
         public string Program { get; set; } = string.Empty;
+        public string Session { get; set; } = string.Empty;
 
-        public CourseEnrolmentModel(ApplicationDbContext context)
+        public List<Course> AvailableCourses { get; set; } = new();
+
+        [BindProperty]
+        public List<string> SelectedCourseIds { get; set; } = new();
+
+        public CourseEnrolmentModel(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -37,6 +45,7 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
+            Session = _configuration["Session"] ?? string.Empty;
 
             Console.WriteLine($"[DEBUG] Retrieved StudentId from claims: '{StudentId}'");
 
@@ -55,8 +64,130 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
                 return NotFound();
             }
 
-            Console.WriteLine("[DEBUG] Successfully loaded student profile.");
+            var existingEnrollment = await _context.Enrolments.FirstOrDefaultAsync(e => e.StudentId == StudentId && e.Session == Session);
+
+            if (existingEnrollment != null)
+            {
+                TempData["ErrorMessage"] = "You are already enrolled in this session!";
+                return RedirectToPage("/Main"); // Redirect to main page
+            }
+
+            AvailableCourses = await _context.Courses
+                .Select(c => new Course
+                {
+                    CourseId = c.CourseId,
+                    CourseName = c.CourseName,
+                    Lecturer = c.Lecturer,
+                    CourseFee = c.CourseFee,
+                    Day = c.Day,
+                    StartTime = c.StartTime,
+                    EndTime = c.EndTime
+                }).ToListAsync();
+
             return Page();
+        }
+        public async Task<IActionResult> OnPostSubmitAsync()
+        {
+            if (string.IsNullOrWhiteSpace(StudentId))
+            {
+                StudentId = Request.Form["StudentId"].ToString().Trim();
+                Console.WriteLine($"DEBUG: Retrieved StudentId from form: '{StudentId}'");
+            }
+            int newEnrollmentId = await GenerateNewEnrolId();
+            int newTransactionId = await GenerateNewTransactionId();
+            string newDocumentNo = await GenerateNewDocumentNo();
+            decimal totalAmt = 0;
+
+            foreach (var courseId in SelectedCourseIds)
+            {
+                var enrolment = new Enrol
+                {
+                    EnrolId = newEnrollmentId,
+                    StudentId = StudentId,
+                    CourseId = courseId,
+                    Session = _configuration["Session"],
+                    DatePerformed = DateTime.UtcNow,
+                    Action = "Enrol",
+                    Reason = null,
+                    Status = "Approved"
+                };
+
+                _context.Enrolments.Add(enrolment);
+                newEnrollmentId += 1;
+            }
+
+            var selectedCourses = await _context.Courses
+            .Where(c => SelectedCourseIds.Contains(c.CourseId))
+            .ToListAsync();
+
+            if (selectedCourses.Any())
+            {
+                totalAmt = selectedCourses.Sum(c => c.CourseFee);
+            }
+
+            var transaction = new StudentAccount
+            {
+                TransactionId = newTransactionId,
+                TransactionDate = DateTime.UtcNow,
+                StudentId = StudentId,
+                Process = "Enrol",
+                Particulars = "Tuition Fee",
+                DocumentNo = newDocumentNo,
+                Session = _configuration["Session"],
+                Status = "Approved",
+                Message = "Transaction is recorded.",
+                Amount = totalAmt,
+            };
+
+
+            _context.StudentAccounts.Add(transaction);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Enrollment successful!";
+            return RedirectToPage("/Main");
+        }
+
+        private async Task<int> GenerateNewEnrolId()
+        {
+            var lastTransaction = await _context.Enrolments
+                .OrderByDescending(t => t.EnrolId)
+                .FirstOrDefaultAsync();
+
+            return lastTransaction != null ? lastTransaction.EnrolId + 1 : 1;
+        }
+
+        private async Task<int> GenerateNewTransactionId()
+        {
+            var lastTransaction = await _context.StudentAccounts
+                .OrderByDescending(t => t.TransactionId)
+                .FirstOrDefaultAsync();
+
+            int newId = 1001; 
+
+            if (lastTransaction != null)
+            {
+                newId = lastTransaction.TransactionId + 1;
+            }
+
+            return newId;
+        }
+
+        private async Task<string> GenerateNewDocumentNo()
+        {
+            var lastDoc = await _context.StudentAccounts
+                .OrderByDescending(t => t.DocumentNo)
+                .FirstOrDefaultAsync();
+
+            int newNumber = 1;
+
+            if (lastDoc != null && lastDoc.DocumentNo.StartsWith("DOC"))
+            {
+                int.TryParse(lastDoc.DocumentNo.Substring(3), out newNumber);
+                newNumber++;
+            }
+
+            return $"DOC{newNumber:D8}"; 
         }
     }
 }

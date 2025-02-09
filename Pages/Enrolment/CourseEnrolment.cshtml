@@ -1,5 +1,6 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Enrolment.CourseEnrolmentModel
+@inject IConfiguration Configuration
 @{
     Layout = "_Layout";
 }
@@ -46,7 +47,7 @@
         </div>
         <div class="info-label">
             <label class="info-title">Session </label>
-            <label>: @Model.Student.Program</label>
+            <label>: @Configuration["Session"]</label>
         </div>
     </div>
 </div>
@@ -57,7 +58,46 @@
 <div style="color:red;font-weight:bold;text-decoration:underline">Courses Summary</div>
 <div style="padding:1px 0">Please select course(s) to be enrolled in:</div>
 
-<button style="background-color:#bbf089; border-radius:8px; font-weight:500">Add course</button>
+<button type="button" style="background-color:#bbf089; border-radius:8px; font-weight:500" onclick="document.getElementById('courseModal').showModal()">Add course</button>
+
+<dialog id="courseModal">
+    <form method="post" onsubmit="saveSelectedCourses(); return false;">
+        <h2>Select Courses</h2>
+        <input type="hidden" id="selectedCourses" name="SelectedCourseIds" asp-for="SelectedCourseIds" />
+
+        @foreach (var course in Model.AvailableCourses)
+        {
+            string startTimeFormatted = course.StartTime.HasValue
+            ? DateTime.Today.Add(course.StartTime.Value).ToString("hh:mm tt")
+            : "N/A";
+
+            string endTimeFormatted = course.EndTime.HasValue
+            ? DateTime.Today.Add(course.EndTime.Value).ToString("hh:mm tt")
+            : "N/A";
+
+            <label>
+                <input type="checkbox" class="course-checkbox" value="@course.CourseId" />
+                @course.CourseId:  @course.CourseName [@course.Day @startTimeFormatted to @endTimeFormatted]
+            </label>
+            <br />
+        }
+
+        <button type="submit">Save</button>
+        <button type="button" onclick="document.getElementById('courseModal').close()">Close</button>
+    </form>
+</dialog>
+
+
+<form method="post">
+    <input type="hidden" name="StudentId" value="@Model.StudentId" />
+    <div id="selectedCoursesContainer"></div>
+    <table id="courseTable" style="display:none; margin:20px 0; ">
+        <tr>
+            <th>Selected Courses</th>
+        </tr>
+    </table>
+    <button id="btnSubmit" type="submit" style="display:none; background-color:#89e6f0; border-radius:8px; font-weight:500" asp-page-handler="Submit">Submit</button>
+</form>
 
 <style>
     .info-row {
@@ -73,4 +113,56 @@
         width: 120px;
         font-weight:bold
     }
+
+    dialog {
+        border: none;
+        border-radius: 8px;
+        padding: 20px;
+        width: 700px;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
 </style>
+
+
+<script>
+    function saveSelectedCourses() {
+        let checkboxes = document.querySelectorAll('.course-checkbox:checked');
+        let selectedCoursesContainer = document.getElementById("selectedCoursesContainer");
+
+        selectedCoursesContainer.innerHTML = ""; // Clear existing inputs
+
+        if (checkboxes.length === 0) {
+            alert("Please select at least one course.");
+            return;
+        }
+
+        // Append multiple hidden inputs for selected courses
+        checkboxes.forEach((checkbox) => {
+            let input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "SelectedCourseIds"; // Multiple inputs with the same name
+            input.value = checkbox.value;
+            selectedCoursesContainer.appendChild(input);
+        });
+
+        // Show selected courses in table
+        let table = document.getElementById("courseTable");
+        table.style.display = "table";
+        table.innerHTML = "<tr><th>Selected Courses</th></tr>";
+
+        checkboxes.forEach((checkbox) => {
+            let row = table.insertRow();
+            let cell = row.insertCell(0);
+            cell.innerHTML = checkbox.nextSibling.textContent.trim();
+        });
+
+        let btnSubmit = document.getElementById("btnSubmit");
+        btnSubmit.style.display = "block";
+
+        document.getElementById('courseModal').close();
+    }
+</script>

@@ -8,6 +8,7 @@ namespace StudentEnrollmentSystem.Models
     {
         [Key]
         [Column("evaluationId")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int EvaluationId { get; set; }
 
         [Column("organizationRate")]
