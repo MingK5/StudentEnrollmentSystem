@@ -23,6 +23,22 @@ namespace StudentEnrollmentSystem.Pages.ContactUs
             _context = context;
         }
 
+        // Generate a new enquiryId
+        public int GenerateNewEnquiryId()
+        {
+            // Query the Feedback table to get the last enquiryId
+            var lastFeedback = _context.Feedback.OrderByDescending(f => f.EnquiryId).FirstOrDefault();
+
+            // If there is no feedback, start with 1
+            if (lastFeedback == null)
+            {
+                return 1;
+            }
+
+            // Otherwise, increment the last enquiryId by 1
+            return lastFeedback.EnquiryId + 1;
+        }
+
         public void OnGet()
         {
         }
@@ -39,10 +55,10 @@ namespace StudentEnrollmentSystem.Pages.ContactUs
             // Create a new Feedback object
             var newFeedback = new Feedback
             {
+                EnquiryId = GenerateNewEnquiryId(), // Manually set the enquiryId
                 Category = Category,
                 Subject = Subject,
                 Message = Message,
-                DateSubmitted = DateTime.Now
             };
 
             try
@@ -57,10 +73,18 @@ namespace StudentEnrollmentSystem.Pages.ContactUs
             }
             catch (Exception ex)
             {
-                // Error: Handle any database errors
+                // Log the inner exception for more details
                 TempData["ErrorMessage"] = $"Error while saving the feedback message: {ex.Message}";
+
+                // Optionally, you can add the inner exception message as well
+                if (ex.InnerException != null)
+                {
+                    TempData["ErrorMessage"] += $" Inner Exception: {ex.InnerException.Message}";
+                }
+
                 return RedirectToPage();
             }
         }
+
     }
 }

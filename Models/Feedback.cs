@@ -23,6 +23,5 @@ namespace StudentEnrollmentSystem.Models
         [Column("message")]
         public string? Message { get; set; }
 
-        public DateTime DateSubmitted { get; set; }
     }
 }
