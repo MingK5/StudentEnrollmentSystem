@@ -9,6 +9,14 @@
 <html>
 <head>
     <title>Receipt - @Model.Transaction.DocumentNo</title>
+    <script>
+        // Auto-close the pop-up window when the session expires
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'sessionExpired' && event.newValue === 'true') {
+                window.close();
+            }
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,7 +24,7 @@
         }
 
         .receipt-container {
-            width: 450px; /* Adjust width for better fit */
+            width: 450px; 
             margin: auto;
             border: 1px solid #000;
             padding: 20px;
@@ -24,7 +32,7 @@
         }
 
         h2 {
-            text-align: center; /* Centers the title */
+            text-align: center; 
         }
 
         table {
@@ -38,7 +46,7 @@
         }
 
         th {
-            text-align: left; /* Ensures left alignment for table headers */
+            text-align: left; 
         }
 
         .print-button {
@@ -64,12 +72,14 @@
     <div class="receipt-container">
         <h2>Payment Receipt</h2>
         <table>
-            <tr><th>Student Name</th><td>@Model.StudentName</td></tr> <!-- Fixed Name Issue -->
+            <tr><th>Student Name</th><td>@Model.StudentName</td></tr> 
             <tr><th>Student ID</th><td>@Model.Transaction.StudentId</td></tr>
+            <tr><th>Identification No</th><td>@Model.IdentificationNo</td></tr>
+            <tr><th>Mailing Address</th><td>@Model.MailingAddress</td></tr>
             <tr><th>Session</th><td>@Model.Transaction.Session</td></tr>
             <tr><th>Transaction Date</th><td>@Model.Transaction.TransactionDate.ToString("dd/MM/yyyy")</td></tr>
             <tr><th>Particulars</th><td>@Model.Transaction.Particulars</td></tr>
-            <tr><th>Receipt No</th><td>@Model.Transaction.DocumentNo</td></tr> <!-- Updated Label -->
+            <tr><th>Receipt No</th><td>@Model.Transaction.DocumentNo</td></tr> 
             <tr><th>Status</th><td>@Model.Transaction.Status</td></tr>
             <tr><th>Amount</th><td>RM @(Math.Abs(Model.Transaction.Amount).ToString("0.00"))</td></tr> <!-- Convert to Positive -->
         </table>

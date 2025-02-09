@@ -18,6 +18,38 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
+<script>
+    let inactivityTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+    let timeout;
+
+    function resetTimer() {
+        clearTimeout(timeout);
+        timeout = setTimeout(logoutUser, inactivityTime);
+    }
+
+    function logoutUser() {
+        fetch('/API/LogoutUser', { method: 'POST' })
+            .then(response => {
+                localStorage.setItem('sessionExpired', 'true'); // Broadcast logout event
+                window.location.href = "/Login"; // Redirect to login page
+            })
+            .catch(error => console.error("Logout failed:", error));
+    }
+
+    // Detect user activity
+    window.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onkeypress = resetTimer;
+    document.onclick = resetTimer;
+
+    // Listen for logout event to close pop-up windows
+    window.addEventListener('storage', function (event) {
+        if (event.key === 'sessionExpired' && event.newValue === 'true') {
+            window.localStorage.removeItem('sessionExpired'); // Clear event
+            window.close(); // Close the pop-up
+        }
+    });
+</script>
 <body>
     <div class="header-container">
         <!-- Student Info -->

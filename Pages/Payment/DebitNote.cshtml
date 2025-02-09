@@ -9,6 +9,14 @@
 <html>
 <head>
     <title>Debit Note - @Model.Transaction.DocumentNo</title>
+    <script>
+        // Auto-close the pop-up window when the session expires
+        window.addEventListener('storage', function (event) {
+            if (event.key === 'sessionExpired' && event.newValue === 'true') {
+                window.close();
+            }
+        });
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,6 +74,8 @@
         <table>
             <tr><th>Student Name</th><td>@Model.StudentName</td></tr>
             <tr><th>Student ID</th><td>@Model.Transaction.StudentId</td></tr>
+            <tr><th>Identification No</th><td>@Model.IdentificationNo</td></tr>
+            <tr><th>Mailing Address</th><td>@Model.MailingAddress</td></tr>
             <tr><th>Session</th><td>@Model.Transaction.Session</td></tr>
             <tr><th>Transaction Date</th><td>@Model.Transaction.TransactionDate.ToString("dd/MM/yyyy")</td></tr>
             <tr><th>Particulars</th><td>@Model.Transaction.Particulars</td></tr>
