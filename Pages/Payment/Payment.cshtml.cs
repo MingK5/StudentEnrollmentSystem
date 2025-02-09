@@ -65,9 +65,9 @@ namespace StudentEnrollmentSystem.Pages.Payment
 
             Console.WriteLine($"DEBUG: Fetching transactions for StudentId: {StudentId}");
 
-            // Fetch all transactions for the student
+            // Fetch all transactions for the student, excluding failed ones
             var allTransactions = await _context.StudentAccounts
-                .Where(t => t.StudentId == StudentId)
+                .Where(t => t.StudentId == StudentId && t.Status != "Failed")  // Exclude failed transactions
                 .OrderBy(t => t.TransactionDate)
                 .ToListAsync();
 
@@ -96,7 +96,7 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 Console.WriteLine("DEBUG: No previous payment found.");
             }
 
-            // Filter transactions happening AFTER the latest payment
+            // Filter transactions happening AFTER the latest payment, also ensuring they are not failed
             PendingTransactions = lastPayment != null
                 ? allTransactions.Where(t => t.TransactionDate > lastPayment.TransactionDate && t.Process != "Payment").ToList()
                 : allTransactions.Where(t => t.Process != "Payment").ToList();

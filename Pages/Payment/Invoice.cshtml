@@ -1,0 +1,79 @@
+﻿@page
+@model StudentEnrollmentSystem.Pages.Payment.InvoiceModel
+@{
+    Layout = null; // Standalone pop-up
+    ViewData["Title"] = "Invoice";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice - @Model.Transaction.DocumentNo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .invoice-container {
+            width: 450px;
+            margin: auto;
+            border: 1px solid #000;
+            padding: 20px;
+            text-align: left; 
+        }
+
+        h2 {
+            text-align: center; /* Centers the title */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            text-align: left; 
+        }
+
+        .print-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: block;
+            width: 100px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+            .print-button:hover {
+                background-color: #004494;
+            }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <h2>Invoice</h2>
+        <table>
+            <tr><th>Student Name</th><td>@Model.StudentName</td></tr>
+            <tr><th>Student ID</th><td>@Model.Transaction.StudentId</td></tr>
+            <tr><th>Session</th><td>@Model.Transaction.Session</td></tr>
+            <tr><th>Transaction Date</th><td>@Model.Transaction.TransactionDate.ToString("dd/MM/yyyy")</td></tr>
+            <tr><th>Particulars</th><td>@Model.Transaction.Particulars</td></tr>
+            <tr><th>Invoice No</th><td>@Model.Transaction.DocumentNo</td></tr>
+            <tr><th>Status</th><td>@Model.Transaction.Status</td></tr>
+            <tr><th>Amount</th><td>RM @Model.Transaction.Amount.ToString("0.00")</td></tr>
+        </table>
+        <button class="print-button" onclick="window.print()">Print</button>
+    </div>
+</body>
+</html>

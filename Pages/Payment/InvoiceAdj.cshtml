@@ -2,4 +2,74 @@
 @model StudentEnrollmentSystem.Pages.Payment.InvoiceAdjModel
 @{
     Layout = "_Layout";
+    ViewData["Title"] = "Invoice and Adjustment Note";
 }
+
+<h2>
+    Invoice and Adjustment Note for :
+</h2>
+
+<div class="d-flex align-items-center mb-3">
+    <label for="sessionDropdown" class="me-2"><strong>Session</strong></label> <!-- Added label -->
+    <select id="sessionDropdown" class="form-control w-25" onchange="changeSession()">
+        @foreach (var session in Model.AvailableSessions)
+        {
+            <option value="@session" selected="@(session == Model.SelectedSession ? "selected" : null)">@session</option>
+        }
+    </select>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Process</th>
+            <th>Particulars</th>
+            <th>Document No</th>
+            <th>Document Date</th>
+            <th>Amount (RM)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.StatementTransactions.Any())
+        {
+            @foreach (var transaction in Model.StatementTransactions)
+            {
+                <tr>
+                    <td>@transaction.DocumentType</td>
+                    <td>@transaction.Process</td>
+                    <td>@transaction.Particulars</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="openDocument('@transaction.DocumentType', '@transaction.DocumentNo')">
+                            @transaction.DocumentNo
+                        </a>
+                    </td>
+                    <td>@transaction.TransactionDate.ToString("dd/MM/yyyy")</td>
+                    <td>@transaction.Amount.ToString("0.00")</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center">No transactions found for the selected session.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    function changeSession() {
+        var selectedSession = document.getElementById("sessionDropdown").value;
+        window.location.href = "?session=" + selectedSession;
+    }
+
+    function openDocument(type, documentNo) {
+        let url = "";
+        if (type === "Invoice") url = "/Payment/Invoice?documentNo=" + documentNo;
+        else if (type === "Debit Note") url = "/Payment/DebitNote?documentNo=" + documentNo;
+        else if (type === "Credit Note") url = "/Payment/CreditNote?documentNo=" + documentNo;
+
+        window.open(url, '_blank', 'width=600,height=600');
+    }
+</script>
