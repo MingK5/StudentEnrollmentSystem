@@ -23,7 +23,8 @@ namespace StudentEnrollmentSystem.Data
 
             // Explicitly map tables
             modelBuilder.Entity<Student>().ToTable("Student");
-            modelBuilder.Entity<StudentAccount>().ToTable("StudentAccount"); // Ensure correct table mapping
+            modelBuilder.Entity<StudentAccount>().ToTable("StudentAccount");
+            modelBuilder.Entity<Evaluation>().ToTable("Evaluation");
         }
     }
 }
