@@ -95,8 +95,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             return new JsonResult(course);
 
-        }Microsoft.EntityFrameworkCore.DbUpdateException: 'An error occurred while saving the entity changes. See the inner exception for details.'
-
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
