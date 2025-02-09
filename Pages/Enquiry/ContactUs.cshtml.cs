@@ -1,76 +1,66 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
+using StudentEnrollmentSystem.Data;
+using StudentEnrollmentSystem.Models;
 using System.Threading.Tasks;
 
-namespace StudentEnrollmentSystem.Pages.Enquiry
+namespace StudentEnrollmentSystem.Pages.ContactUs
 {
     public class ContactUsModel : PageModel
     {
-        public string StudentName { get; set; } = string.Empty;
-        public string StudentId { get; set; } = string.Empty;
-        public string Program { get; set; } = string.Empty;
+        private readonly ApplicationDbContext _context;
 
-
+        // Properties to bind form input
         [BindProperty]
-        [Required(ErrorMessage = "Please select a category.")]
-        public string Category { get; set; } = string.Empty;
-
+        public string Category { get; set; }
         [BindProperty]
-        [Required(ErrorMessage = "Subject is required.")]
-        [StringLength(100, ErrorMessage = "Subject must be less than 100 characters.")]
-        public string Subject { get; set; } = string.Empty;
-
+        public string Subject { get; set; }
         [BindProperty]
-        [Required(ErrorMessage = "Message is required.")]
-        [StringLength(500, ErrorMessage = "Message must be less than 500 characters.")]
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; set; }
 
-        public string SuccessMessage { get; set; } = string.Empty;
-        public string ErrorMessage { get; set; } = string.Empty;
+        public ContactUsModel(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        public void OnGet()
+        {
+        }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            // Validate input
+            if (string.IsNullOrWhiteSpace(Category) || string.IsNullOrWhiteSpace(Subject) || string.IsNullOrWhiteSpace(Message))
             {
-                return Page();
+                TempData["ErrorMessage"] = "All fields must be filled out.";
+                return RedirectToPage();
             }
+
+            // Create a new Feedback object
+            var newFeedback = new Feedback
+            {
+                Category = Category,
+                Subject = Subject,
+                Message = Message,
+                DateSubmitted = DateTime.Now
+            };
 
             try
             {
-                // Simulate sending data (In real implementation, save to database or send an email)
-                await Task.Delay(500); // Simulating async operation
+                // Save the feedback message to the database
+                _context.Feedback.Add(newFeedback);
+                await _context.SaveChangesAsync();
 
-                SuccessMessage = "Your message has been sent successfully!";
+                // Success: Redirect with a success message
+                TempData["SuccessMessage"] = "Your message has been successfully sent!";
+                return RedirectToPage();
             }
-            catch
+            catch (Exception ex)
             {
-                ErrorMessage = "An error occurred while sending your message. Please try again.";
-                return Page();
+                // Error: Handle any database errors
+                TempData["ErrorMessage"] = $"Error while saving the feedback message: {ex.Message}";
+                return RedirectToPage();
             }
-
-            // Ensure a return statement exists for all execution paths
-            return Page();
-        }
-
-
-        public IActionResult OnGet()
-        {
-            var user = HttpContext.User;
-
-            // Redirect to Login if user is not authenticated
-            if (user == null || !user.Identity.IsAuthenticated)
-            {
-                return RedirectToPage("/Login");
-            }
-
-            // Fetch user details from Claims
-            StudentName = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
-            StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-            Program = user.FindFirst("Program")?.Value ?? "Unknown";
-
-            return Page();
         }
     }
 }
-

@@ -3,3 +3,165 @@
 @{
     Layout = "_Layout";
 }
+
+<style>
+    .top-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 80%;
+        margin: auto;
+    }
+
+    .session-container {
+        flex: 1;
+        text-align: left;
+    }
+
+    .transaction-container {
+        flex: 2;
+        text-align: center;
+    }
+
+    .statement-table {
+        width: 80%;
+        margin: auto;
+        border-collapse: collapse;
+    }
+
+        .statement-table th, .statement-table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .statement-table th {
+            background-color: #f2f2f2;
+        }
+
+    @@media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #printableArea, #printableArea * {
+            visibility: visible;
+        }
+
+        #printableArea {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+    }
+</style>
+
+<!-- Printable Area -->
+<div id="printableArea">
+    <h2 class="text-center" id="statementTitle">Student Statement</h2>
+
+    <!-- Top section with session (left) and date filter (center) -->
+    <div class="top-container">
+        <div class="session-container">
+            <label for="session"><strong>Session:</strong></label>
+            <select id="session">
+                <option value="JAN2025">JAN2025</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Transaction Date filters -->
+    <div class="transaction-container">
+        <label><strong>Transaction Date</strong></label>
+        <label for="dateFrom">From</label>
+        <input type="date" id="dateFrom">
+
+        <label for="dateTo">To</label>
+        <input type="date" id="dateTo">
+
+        <button onclick="filterTransactions()">VIEW</button>
+        <button onclick="printStatement()">PRINT</button>
+    </div>
+
+    <br />
+
+    <!-- Table with transaction details (Initially Hidden) -->
+    <table class="statement-table" id="statementTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>DATE</th>
+                <th>PROCESS</th>
+                <th>PARTICULARS</th>
+                <th>DOCUMENT NO.</th>
+                <th>SESSION</th>
+                <th>AMOUNT DUE (RM)</th>
+                <th>AMOUNT PAID (RM)</th>
+                <th>TOTAL DUE/PAID (RM)</th>
+            </tr>
+        </thead>
+        <tbody id="transactionBody">
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7"><strong>Balance</strong></td>
+                <td id="balanceAmount"><strong>0.00</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<script>
+    async function filterTransactions() {
+        let dateFrom = document.getElementById("dateFrom").value;
+        let dateTo = document.getElementById("dateTo").value;
+
+        if (!dateFrom || !dateTo) {
+            alert("Please select both from and to dates.");
+            return;
+        }
+
+        const response = await fetch(`/Statement/StudentStatement?handler=FilterTransactions&dateFrom=${dateFrom}&dateTo=${dateTo}`);
+        const transactions = await response.json();
+
+        let tableBody = document.getElementById("transactionBody");
+        tableBody.innerHTML = ""; // Clear existing rows
+
+        let totalBalance = 0;
+
+        if (transactions.length > 0) {
+            transactions.forEach(transaction => {
+                let formattedDate = new Date(transaction.transactionDate).toISOString().split('T')[0];
+
+                let row = `<tr>
+                    <td>${formattedDate}</td>
+                    <td>${transaction.process}</td>
+                    <td>${transaction.particulars}</td>
+                    <td>${transaction.documentNo}</td>
+                    <td>${transaction.session}</td>
+                    <td>${transaction.amount > 0 ? transaction.amount.toFixed(2) : "0.00"}</td>
+                    <td>${transaction.amount < 0 ? (-transaction.amount).toFixed(2) : "0.00"}</td>
+                    <td>${transaction.amount.toFixed(2)}</td>
+                </tr>`;
+
+                tableBody.innerHTML += row;
+                totalBalance += transaction.amount;
+            });
+
+            document.getElementById("statementTable").style.display = "table";
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="8">No transactions available.</td></tr>';
+            document.getElementById("statementTable").style.display = "table";
+        }
+
+        // Update title dynamically
+        document.getElementById("statementTitle").innerText = `Student Statement from ${dateFrom} to ${dateTo}`;
+
+        // Update the balance under "Total Due/Paid (RM)" column
+        document.getElementById("balanceAmount").innerHTML = `<strong>${totalBalance.toFixed(2)}</strong>`;
+    }
+
+    function printStatement() {
+        window.print();
+    }
+</script>
