@@ -50,7 +50,10 @@ namespace StudentEnrollmentSystem.Pages.Statement
                         CourseId = course.CourseId,
                         CourseName = course.CourseName,
                         Lecturer = course.Lecturer,
-                        Credit = course.Credit
+                        Credit = course.Credit,
+                        StartTime = course.StartTime,  
+                        EndTime = course.EndTime,      
+                        Day = course.Day               
                     })
                 .ToList();
 
