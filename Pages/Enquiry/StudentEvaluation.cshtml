@@ -4,77 +4,83 @@
     Layout = "_Layout";
 }
 
-<h2 class="text-center">Student Evaluation</h2>
+<div class="container mt-4">
+    <h2 class="text-center">Student Evaluation</h2>
 
-<form method="post" id="evaluationForm">
-    <div class="form-group">
-        <label for="courseSelect">Course Enrolled:</label>
-        <select id="courseSelect" asp-for="SelectedCourseId" asp-items="Model.CourseList" class="form-control" required>
-            <option value="">-- Select Course --</option>
-        </select>
-    </div>
+    <form method="post" id="evaluationForm">
+        <div class="form-group">
+            <label for="courseSelect">Course Enrolled:</label>
+            <select id="courseSelect" asp-for="SelectedCourseId" asp-items="Model.CourseList" class="form-control" required>
+                <option value="">-- Select Course --</option>
+            </select>
+        </div>
 
-    <div class="container mt-4">
-        <div id="courseDetails" class="card shadow p-4" hidden>
-            <h4 class="mb-3 text-primary">Course Details</h4>
-            <div class="row">
-                <div class="col-md-6">
-                    <p><strong>Course ID:</strong> <span id="courseId"></span></p>
-                    <p><strong>Course Name:</strong> <span id="courseName"></span></p>
-                    <p><strong>Credit:</strong> <span id="credit"></span></p>
-                    <p><strong>Lecturer:</strong> <span id="lecturer"></span></p>
-                </div>
-                <div class="col-md-6">
-                    <p><strong>Start Time:</strong> <span id="startTime"></span></p>
-                    <p><strong>End Time:</strong> <span id="endTime"></span></p>
-                    <p><strong>Day:</strong> <span id="day"></span></p>
+        <div class="container mt-4">
+            <div id="courseDetails" class="card shadow p-4" hidden>
+                <h4 class="mb-3 text-primary">Course Details</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Course ID:</strong> <span id="courseId"></span></p>
+                        <p><strong>Course Name:</strong> <span id="courseName"></span></p>
+                        <p><strong>Credit:</strong> <span id="credit"></span></p>
+                        <p><strong>Lecturer:</strong> <span id="lecturer"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Start Time:</strong> <span id="startTime"></span></p>
+                        <p><strong>End Time:</strong> <span id="endTime"></span></p>
+                        <p><strong>Day:</strong> <span id="day"></span></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="mt-3" id="buttonContainer" hidden>
-        <button type="button" id="proceedBtn" class="btn btn-primary">Proceed</button>
-    </div>
+        <div class="mt-3" id="buttonContainer" hidden>
+            <button type="button" id="proceedBtn" class="btn btn-primary">Proceed</button>
+        </div>
 
-    <div id="evaluationSection" hidden>
-        <h4>Evaluation Form</h4>
-        <label>Organization Rate:</label>
-        <select class="form-control" asp-for="Evaluation.OrganizationRate">
-            <option value="">-- Select rate --</option>
-            <option value="1">1 - Poor</option>
-            <option value="2">2 - Fair</option>
-            <option value="3">3 - Good</option>
-            <option value="4">4 - Very Good</option>
-            <option value="5">5 - Excellent</option>
-        </select>
+        <div id="evaluationSection" hidden>
+            <h4>Evaluation Form</h4>
+            <label>Organization Rate:</label>
+            <select class="form-control" asp-for="Evaluation.OrganizationRate" required>
+                <option value="">-- Select rate --</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
 
-        <label>Clarity Rate:</label>
-        <select class="form-control" asp-for="Evaluation.ClarityRate">
-            <option value="">-- Select rate --</option>
-            <option value="1">1 - Poor</option>
-            <option value="2">2 - Fair</option>
-            <option value="3">3 - Good</option>
-            <option value="4">4 - Very Good</option>
-            <option value="5">5 - Excellent</option>
-        </select>
+            <label>Clarity Rate:</label>
+            <select class="form-control" asp-for="Evaluation.ClarityRate" required>
+                <option value="">-- Select rate --</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
 
-        <label>Material Rate:</label>
-        <select class="form-control" asp-for="Evaluation.MaterialRate">
-            <option value="">-- Select rate --</option>
-            <option value="1">1 - Poor</option>
-            <option value="2">2 - Fair</option>
-            <option value="3">3 - Good</option>
-            <option value="4">4 - Very Good</option>
-            <option value="5">5 - Excellent</option>
-        </select>
+            <label>Material Rate:</label>
+            <select class="form-control" asp-for="Evaluation.MaterialRate" required>
+                <option value="">-- Select rate --</option>
+                <option value="1">1 - Poor</option>
+                <option value="2">2 - Fair</option>
+                <option value="3">3 - Good</option>
+                <option value="4">4 - Very Good</option>
+                <option value="5">5 - Excellent</option>
+            </select>
 
-        <label>Comments:</label>
-        <textarea class="form-control" asp-for="Evaluation.Comment"></textarea>
+            <br>
+            <span id="errorMessage" style="color: red; display: none;">Please select a rating!</span>
+            <br>
+            <label>Comments:</label>
+            <textarea class="form-control" asp-for="Evaluation.Comment"></textarea>
 
-        <button type="submit" class="btn btn-success mt-3">Submit</button>
-    </div>
-</form>
+            <button type="submit" class="btn btn-success mt-3">Submit</button>
+        </div>
+    </form>
+</div>
+
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -89,14 +95,12 @@
         courseSelect.addEventListener("change", function () {
             const courseId = this.value;
 
-            if (evaluatedCourses.includes(courseId)) {
-                alert("This course has already been evaluated.");
-                courseSelect.value = ""; // Reset selection
+            if (!courseId) {
+                resetCourseDetails();
                 return;
             }
 
-            if (courseId) {
-                fetch(/Enquiry/StudentEvaluation?handler=GetCourseDetails&courseId=${courseId})
+                fetch(`/Enquiry/StudentEvaluation?handler=GetCourseDetails&courseId=${courseId}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data) {
@@ -110,23 +114,28 @@
 
                             courseDetailsDiv.hidden = false;
                             buttonContainer.hidden = false;
-                        } else {
-                            resetCourseDetails();
+                        
                         }
                     })
                     .catch(error => {
                         console.error("Error fetching course details:", error);
                         resetCourseDetails();
                     });
-            } else {
-                resetCourseDetails();
-            }
-        });
+            
+            });
 
         function resetCourseDetails() {
             courseDetailsDiv.hidden = true;
             buttonContainer.hidden = true;
             evaluationSection.hidden = true;
+
+            document.getElementById("courseId").innerText = "";
+            document.getElementById("courseName").innerText = "";
+            document.getElementById("credit").innerText = "";
+            document.getElementById("lecturer").innerText = "";
+            document.getElementById("startTime").innerText = "";
+            document.getElementById("endTime").innerText = "";
+            document.getElementById("day").innerText = "";
         }
 
         proceedBtn.addEventListener("click", function () {
@@ -135,32 +144,42 @@
             evaluationSection.hidden = false;
         });
 
-            document.getElementById("evaluationForm").addEventListener("submit", function (event) {
-                event.preventDefault(); // Prevent default form submission
+        document.getElementById("evaluationForm").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
 
-                const formData = new FormData(this);
-                fetch("/Enquiry/StudentEvaluation", {
-                    method: "POST",
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Response Data:", data); // Debugging
-                    if (data.success) {
-                        alert("Evaluation submitted successfully!");
-                        evaluatedCourses.push(courseSelect.value);
-                        updateDropdown();
-                        window.location.href = "/Enquiry/StudentEvaluation";
-                    } else {
-                        alert("Error: " + (data.message || "Submission failed."));
-                    }
-                })
-                .catch(error => {
-                    console.error("Submission error:", error);
-                    alert("An error occurred. Please try again.");
-                });
+            var organizationRate = document.getElementById("Evaluation_OrganizationRate").value;
+            var clarityRate = document.getElementById("Evaluation_ClarityRate").value;
+            var materialRate = document.getElementById("Evaluation_MaterialRate").value;
+            var errorMessage = document.getElementById("errorMessage");
+
+            if (organizationRate === "" || clarityRate === "" || materialRate === "") {
+                errorMessage.style.display = "block"; // Show error if any rating is missing
+                return;
+            } else {
+                errorMessage.style.display = "none"; // Hide error if all ratings are selected
+            }
+
+            const formData = new FormData(this);
+            fetch("/Enquiry/StudentEvaluation", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Evaluation submitted successfully!");
+                    evaluatedCourses.push(courseSelect.value); // Mark as evaluated
+                    updateDropdown();
+                    resetCourseDetails();
+                } else {
+                    alert("Error submitting evaluation. Please try again.");
+                }
+            })
+            .catch(error => {
+                console.error("Submission error:", error);
+                alert("An error occurred. Please try again.");
             });
-
+        });
 
         function updateDropdown() {
             const options = courseSelect.options;
@@ -176,3 +195,5 @@
         }
     });
 </script>
+
+

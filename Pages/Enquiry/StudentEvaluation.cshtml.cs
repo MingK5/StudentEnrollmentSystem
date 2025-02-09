@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace StudentEnrollmentSystem.Pages.Enquiry
 {
     public class StudentEvaluationModel : PageModel
@@ -40,38 +41,22 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 return RedirectToPage("/Login");
             }
 
-            StudentName = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
-            StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-            Program = user.FindFirst("Program")?.Value ?? "Unknown";
+            string studentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
-            if (_context.Enrolments != null && _context.Courses != null && _context.Evaluations != null)
-            {
-                var enrolledCourses = await _context.Enrolments
-                    .Where(e => e.StudentId == StudentId)
-                    .Select(e => new
-                    {
-                        e.EnrolId,
-                        e.CourseId,
-                        e.DatePerformed
-                    })
-                    .ToListAsync();
+            var enrolledCourses = await _context.Enrolments
+                .Where(e => e.StudentId == studentId)
+                .Select(e => new { e.EnrolId, e.CourseId, e.DatePerformed })
+                .ToListAsync();
 
-                var evaluatedEnrollments = await _context.Evaluations
-                    .Select(ev => ev.EnrolId)
-                    .ToListAsync();
+            var evaluatedEnrollments = await _context.Evaluations
+                .Where(ev => enrolledCourses.Select(e => e.EnrolId).Contains(ev.EnrolId))
+                .Select(ev => ev.EnrolId)
+                .ToListAsync();
 
-                CourseList = enrolledCourses
-                    .Where(e => e.CourseId != null && !evaluatedEnrollments.Contains(e.EnrolId))
-                    .Select(e => new SelectListItem
-                    {
-                        Value = e.CourseId,
-                        Text = _context.Courses
-                            .Where(c => c.CourseId == e.CourseId)
-                            .Select(c => c.CourseName)
-                            .FirstOrDefault() ?? "Unknown Course"
-                    })
-                    .ToList();
-            }
+            CourseList = enrolledCourses
+                .Where(e => !evaluatedEnrollments.Contains(e.EnrolId))
+                .Select(e => new SelectListItem { Value = e.CourseId, Text = e.CourseId })
+                .ToList();
 
             return Page();
         }
@@ -79,7 +64,12 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         public async Task<JsonResult> OnGetGetCourseDetailsAsync(string courseId)
         {
             var courseData = await _context.Courses
-                .Where(c => c.CourseId == courseId)
+                .Where(c => c.CourseId == courseId &&
+                    !_context.Evaluations.Any(e => e.EnrolId ==
+                        _context.Enrolments
+                        .Where(en => en.CourseId == courseId && en.StudentId == StudentId)
+                        .Select(en => en.EnrolId)
+                        .FirstOrDefault()))
                 .FirstOrDefaultAsync();
 
             if (courseData == null)
@@ -109,51 +99,22 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
-            {
-                return new JsonResult(new { success = false, message = "Invalid form data." });
-            }
-
-            var user = HttpContext.User;
-            StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-
-            if (string.IsNullOrEmpty(StudentId))
-            {
-                return new JsonResult(new { success = false, message = "User authentication failed. Please log in again." });
-            }
+            if (!ModelState.IsValid) return Page();
 
             var enrolment = await _context.Enrolments
-                .Where(e => e.StudentId == StudentId && e.CourseId == SelectedCourseId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(e => e.CourseId == SelectedCourseId);
 
-            if (enrolment == null)
+            if (enrolment != null)
             {
-                return new JsonResult(new { success = false, message = "You are not enrolled in this course." });
-            }
-
-            // Ensure evaluation is linked to the correct enrolment
-            Evaluation.EnrolId = enrolment.EnrolId;
-
-            try
-            {
+                Evaluation.EnrolId = enrolment.EnrolId;
                 _context.Evaluations.Add(Evaluation);
                 await _context.SaveChangesAsync();
-                return new JsonResult(new { success = true, message = "Evaluation submitted successfully." });
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"DbUpdateException: {ex.Message}");
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-                }
-                return new JsonResult(new { success = false, message = "An error occurred while saving your evaluation. Please try again." });
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new { success = false, message = $"Unexpected error: {ex.Message}" });
-            }
-        }
 
+                return new JsonResult(new { success = true });
+            }
+
+            return new JsonResult(new { success = false });
+        }
     }
 }
+
