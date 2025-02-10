@@ -42,20 +42,26 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 .Where(su => su.StudentId == studentId)
                 .ToList();
 
-            // Retrieve courses that the student is enrolled in
             AllCourses = _context.Enrolments
                 .Where(e => e.StudentId == studentId)
-                .Include(e => e.Course) // Ensure Course data is loaded
+                .Include(e => e.Course)
                 .Select(e => new TimetableViewModel
                 {
                     Day = e.Course.Day,
                     StartTime = e.Course.StartTime,
                     EndTime = e.Course.EndTime,
                     CourseId = e.Course.CourseId,
-                    CourseName = e.Course.CourseName
+                    CourseName = e.Course.CourseName,
+                    Credit = e.Course.Credit
                 }).ToList();
 
             return Page();
+        }
+
+        private int GetNextStudentUnavailabilityId()
+        {
+            var maxId = _context.StudentUnavailability.Max(su => (int?)su.StudentUnavailabilityId) ?? 0;
+            return maxId + 1;
         }
 
         public IActionResult OnPostAddUnavailability(string Day, TimeSpan StartTime, TimeSpan EndTime)
@@ -68,6 +74,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             var newUnavailability = new StudentUnavailability
             {
+                StudentUnavailabilityId = GetNextStudentUnavailabilityId(),
                 StudentId = studentId,
                 Day = Day,
                 StartTime = StartTime,
@@ -111,10 +118,9 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                     StartTime = c.StartTime,
                     EndTime = c.EndTime,
                     CourseId = c.CourseId,
-                    CourseName = c.CourseName
+                    CourseName = c.CourseName,
                 }).ToList();
 
-            // Filter schedules to exclude conflicts with student unavailability
             MatchingSchedule = allSchedules
                 .Where(schedule => !unavailability.Any(u =>
                     u.Day == schedule.Day &&

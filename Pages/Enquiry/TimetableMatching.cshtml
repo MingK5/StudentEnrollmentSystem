@@ -28,7 +28,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var course in Model.AvailableCourses)
+        @foreach (var course in Model.AllCourses)
         {
             <tr>
                 <td>@course.CourseId</td>
@@ -59,8 +59,12 @@
                     <td>@($"{time.StartTime:hh\\:mm}")</td>
                     <td>@($"{time.EndTime:hh\\:mm}")</td>
                     <td>
-                        <button type="submit" asp-page-handler="RemoveUnavailability" asp-route-id="@time.StudentUnavailabilityId" class="btn btn-danger">Remove</button>
-                    </td>
+                        <form method="post">
+                            <input type="hidden" name="unavailability.StudentUnavailabilityId" value="@time.StudentUnavailabilityId" />
+                            <button type="submit" asp-page-handler="RemoveUnavailability" class="btn btn-danger">Remove</button>
+                        </form>
+</td>
+
                 </tr>
             }
             <tr>
@@ -85,7 +89,7 @@
 <!-- Start Matching Button -->
 <form method="post">
     <button type="submit" asp-page-handler="StartMatching" class="btn btn-warning">Start Matching</button>
-    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#timetableModal">View Timetable</button>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#timetableModal">View All Timetable Schedule</button>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#matchingScheduleModal">View Matching Schedule</button>
 </form>
 
