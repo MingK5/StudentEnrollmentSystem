@@ -30,5 +30,6 @@ namespace StudentEnrollmentSystem.Models
 
         [Column("day")]
         public string Day { get; set; } = string.Empty;
+
     }
 }

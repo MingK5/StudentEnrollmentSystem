@@ -30,5 +30,7 @@ namespace StudentEnrollmentSystem.Models
 
         [Column("datePerformed")]
         public DateTime? DatePerformed { get; set; }
+        public Student? Student { get; set; }
+        public Course? Course { get; set; }
     }
 }

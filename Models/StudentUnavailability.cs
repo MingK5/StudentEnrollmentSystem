@@ -9,9 +9,9 @@ namespace StudentEnrollmentSystem.Models
         public int StudentUnavailabilityId { get; set; } // Primary Key
 
         [ForeignKey("Student")]
-        public string? StudentId { get; set; } // Foreign Key referencing Student
+        public string StudentId { get; set; } = string.Empty; // Correct Foreign Key referencing Student
 
-        public string? Day { get; set; } // Stores day of unavailability
+        public string Day { get; set; } = string.Empty; // Stores day of unavailability
 
         public TimeSpan? StartTime { get; set; } // Start time of unavailability
 

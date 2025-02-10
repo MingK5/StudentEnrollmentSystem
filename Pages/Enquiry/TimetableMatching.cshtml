@@ -59,13 +59,14 @@
                     <td>@($"{time.StartTime:hh\\:mm}")</td>
                     <td>@($"{time.EndTime:hh\\:mm}")</td>
                     <td>
-                        <button type="submit" asp-page-handler="RemoveUnavailability" asp-route-id="@time.Id" class="btn btn-danger">Remove</button>
+                        <button type="submit" asp-page-handler="RemoveUnavailability" asp-route-id="@time.StudentUnavailabilityId" class="btn btn-danger">Remove</button>
                     </td>
                 </tr>
             }
             <tr>
                 <td>
-                    <select name="Day" class="form-control">
+                    <select name="Day" class="form-control" required>
+                        <option value="">Select Day</option>
                         <option>Monday</option>
                         <option>Tuesday</option>
                         <option>Wednesday</option>
@@ -81,69 +82,93 @@
     </table>
 </form>
 
-<!-- Timetable -->
-<h3>Timetable</h3>
-@if (Model.EnrolledCourses.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Day</th>
-                <th>Time</th>
-                <th>Course Code</th>
-                <th>Course Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var course in Model.EnrolledCourses.OrderBy(c => c.Day).ThenBy(c => c.StartTime))
-            {
-                <tr>
-                    <td>@course.Day</td>
-                    <td>@course.StartTime.ToString(@"hh\:mm") - @course.EndTime.ToString(@"hh\:mm")</td>
-                    <td>@course.CourseId</td>
-                    <td>@course.CourseName</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No timetable available.</p>
-}
-
-<!-- Matching Schedule -->
-<h3>Matching Schedule</h3>
-@if (Model.MatchingSchedule.Any())
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Day</th>
-                <th>Time</th>
-                <th>Course Code</th>
-                <th>Course Name</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var match in Model.MatchingSchedule)
-            {
-                <tr>
-                    <td>@match.Day</td>
-                    <td>@match.StartTime - @match.EndTime</td>
-                    <td>@match.CourseId</td>
-                    <td>@match.CourseName</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <p>No matching schedule found.</p>
-}
-
-<!-- Start Button -->
+<!-- Start Matching Button -->
 <form method="post">
-    <button type="submit" asp-page-handler="StartMatching" class="btn btn-success">Start</button>
+    <button type="submit" asp-page-handler="StartMatching" class="btn btn-warning">Start Matching</button>
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#timetableModal">View Timetable</button>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#matchingScheduleModal">View Matching Schedule</button>
 </form>
+
+<!-- Timetable Modal -->
+<div class="modal fade" id="timetableModal" tabindex="-1" aria-labelledby="timetableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="timetableModalLabel">Timetable</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.AllCourses.Any())
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var course in Model.AllCourses.OrderBy(c => c.Day).ThenBy(c => c.StartTime))
+                            {
+                                <tr>
+                                    <td>@course.Day</td>
+                                    <td>@($"{course.StartTime:hh\\:mm}") - @($"{course.EndTime:hh\\:mm}")</td>
+                                    <td>@course.CourseId</td>
+                                    <td>@course.CourseName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>No timetable available.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Matching Schedule Modal -->
+<div class="modal fade" id="matchingScheduleModal" tabindex="-1" aria-labelledby="matchingScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="matchingScheduleModalLabel">Matching Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Model.MatchingSchedule.Any())
+                {
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Time</th>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var match in Model.MatchingSchedule)
+                            {
+                                <tr>
+                                    <td>@match.Day</td>
+                                    <td>@($"{match.StartTime:hh\\:mm}") - @($"{match.EndTime:hh\\:mm}")</td>
+                                    <td>@match.CourseId</td>
+                                    <td>@match.CourseName</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p>No matching schedule found.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

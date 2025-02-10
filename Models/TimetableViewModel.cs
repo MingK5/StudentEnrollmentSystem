@@ -2,11 +2,12 @@
 {
     public class TimetableViewModel
     {
-        public string CourseId { get; set; }
+        public string CourseId { get; set; } = string.Empty;
         public string CourseName { get; set; } = string.Empty;
         public string Lecturer { get; set; } = string.Empty;
+        public int Credit { get; set; } // Use "Credit" to match Course model
+        public TimeSpan? StartTime { get; set; } // Add start time
+        public TimeSpan? EndTime { get; set; } // Add end time
         public string Day { get; set; } = string.Empty;
-        public TimeSpan StartTime { get; set; }
-        public TimeSpan EndTime { get; set; }
     }
 }
