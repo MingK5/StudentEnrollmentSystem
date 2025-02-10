@@ -16,6 +16,7 @@ namespace StudentEnrollmentSystem.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<StudentAccount> StudentAccounts { get; set; } = null!; // Add StudentAccount table
         public DbSet<Feedback> Feedback { get; set; } // Add Feedback table
+        public DbSet<StudentUnavailability> StudentUnavailabilities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +29,7 @@ namespace StudentEnrollmentSystem.Data
             modelBuilder.Entity<Course>().ToTable("Courses");
             modelBuilder.Entity<Enrol>().ToTable("Enrol");
             modelBuilder.Entity<Feedback>().ToTable("Feedback");
+            modelBuilder.Entity<StudentUnavailability>().ToTable("StudentUnavailability");
         }
     }
 }

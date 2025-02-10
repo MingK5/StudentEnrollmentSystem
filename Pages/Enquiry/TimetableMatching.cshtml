@@ -1,5 +1,149 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Enquiry.TimetableMatchingModel
+
 @{
-    Layout = "_Layout";
+    ViewData["Title"] = "Timetable Matching";
 }
+
+<h2>Timetable Matching</h2>
+
+<!-- Student Information Section -->
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Student Details</h5>
+        <p><strong>Name:</strong> @Model.Student.StudentName</p>
+        <p><strong>Student ID:</strong> @Model.Student.StudentId</p>
+        <p><strong>Program:</strong> @Model.Student.Program</p>
+    </div>
+</div>
+
+<!-- Courses to Be Matched -->
+<h3>Courses to Be Matched</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Course Name</th>
+            <th>Credit Hours</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.AvailableCourses)
+        {
+            <tr>
+                <td>@course.CourseId</td>
+                <td>@course.CourseName</td>
+                <td>@course.Credit</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Non-Available Time -->
+<h3>Non-Available Time</h3>
+<form method="post">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var time in Model.StudentUnavailability)
+            {
+                <tr>
+                    <td>@time.Day</td>
+                    <td>@($"{time.StartTime:hh\\:mm}")</td>
+                    <td>@($"{time.EndTime:hh\\:mm}")</td>
+                    <td>
+                        <button type="submit" asp-page-handler="RemoveUnavailability" asp-route-id="@time.Id" class="btn btn-danger">Remove</button>
+                    </td>
+                </tr>
+            }
+            <tr>
+                <td>
+                    <select name="Day" class="form-control">
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                    </select>
+                </td>
+                <td><input type="time" name="StartTime" class="form-control" required></td>
+                <td><input type="time" name="EndTime" class="form-control" required></td>
+                <td><button type="submit" asp-page-handler="AddUnavailability" class="btn btn-primary">Add</button></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+
+<!-- Timetable -->
+<h3>Timetable</h3>
+@if (Model.EnrolledCourses.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model.EnrolledCourses.OrderBy(c => c.Day).ThenBy(c => c.StartTime))
+            {
+                <tr>
+                    <td>@course.Day</td>
+                    <td>@course.StartTime.ToString(@"hh\:mm") - @course.EndTime.ToString(@"hh\:mm")</td>
+                    <td>@course.CourseId</td>
+                    <td>@course.CourseName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No timetable available.</p>
+}
+
+<!-- Matching Schedule -->
+<h3>Matching Schedule</h3>
+@if (Model.MatchingSchedule.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var match in Model.MatchingSchedule)
+            {
+                <tr>
+                    <td>@match.Day</td>
+                    <td>@match.StartTime - @match.EndTime</td>
+                    <td>@match.CourseId</td>
+                    <td>@match.CourseName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No matching schedule found.</p>
+}
+
+<!-- Start Button -->
+<form method="post">
+    <button type="submit" asp-page-handler="StartMatching" class="btn btn-success">Start</button>
+</form>
