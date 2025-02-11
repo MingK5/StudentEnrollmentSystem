@@ -39,52 +39,68 @@
     </tbody>
 </table>
 
-<!-- Non-Available Time -->
+<!-- Non-Available Time Table (Including Add Row for Consistency) -->
 <h3>Non-Available Time</h3>
-<form method="post">
-    <table class="table table-bordered">
-        <thead>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var time in Model.StudentUnavailability)
+        {
             <tr>
-                <th>Day</th>
-                <th>Start Time</th>
-                <th>End Time</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var time in Model.StudentUnavailability)
-            {
-                <tr>
-                    <td>@time.Day</td>
-                    <td>@($"{time.StartTime:hh\\:mm}")</td>
-                    <td>@($"{time.EndTime:hh\\:mm}")</td>
-                    <td>
-                        <form method="post">
-                            <input type="hidden" name="unavailability.StudentUnavailabilityId" value="@time.StudentUnavailabilityId" />
-                            <button type="submit" asp-page-handler="RemoveUnavailability" class="btn btn-danger">Remove</button>
-                        </form>
-</td>
-
-                </tr>
-            }
-            <tr>
+                <td>@time.Day</td>
+                <td>@($"{time.StartTime:hh\\:mm}")</td>
+                <td>@($"{time.EndTime:hh\\:mm}")</td>
                 <td>
-                    <select name="Day" class="form-control" required>
-                        <option value="">Select Day</option>
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                    </select>
+                    <!-- Separate form for each Remove button -->
+                    <form method="post">
+                        <input type="hidden" name="id" value="@time.StudentUnavailabilityId" />
+                        <button type="submit" asp-page-handler="RemoveUnavailability" class="btn btn-danger">
+                            Remove
+                        </button>
+                    </form>
                 </td>
-                <td><input type="time" name="StartTime" class="form-control" required></td>
-                <td><input type="time" name="EndTime" class="form-control" required></td>
-                <td><button type="submit" asp-page-handler="AddUnavailability" class="btn btn-primary">Add</button></td>
             </tr>
-        </tbody>
-    </table>
-</form>
+        }
+
+        <!-- Form for Adding New Unavailability (Now Inside the Same Table) -->
+        <tr>
+            <form method="post">
+                <!-- Validation summary to display error messages -->
+            <td colspan="4">
+                <!-- Span across all columns to make the message visible -->
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </td>
+            </form>
+        </tr>
+        <tr>
+            <form method="post">
+            <td>
+                <select name="Day" class="form-control" required>
+                    <option value="">Select Day</option>
+                    <option>Mon</option>
+                    <option>Tue</option>
+                    <option>Wed</option>
+                    <option>Thu</option>
+                    <option>Fri</option>
+                </select>
+            </td>
+            <td><input type="time" name="StartTime" class="form-control" required></td>
+            <td><input type="time" name="EndTime" class="form-control" required></td>
+            <td>
+                <button type="submit" asp-page-handler="AddUnavailability" class="btn btn-primary">Add</button>
+            </td>
+            </form>
+        </tr>
+    </tbody>
+</table>
+
 
 <!-- Start Matching Button -->
 <form method="post">
@@ -176,3 +192,5 @@
         </div>
     </div>
 </div>
+
+

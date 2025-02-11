@@ -27,18 +27,31 @@
     }
 
     .transaction-container {
-        width: 80%;
-        margin: auto;
         display: flex;
         align-items: center;
-        gap: 20px;
-        margin-top: 15px;
+        justify-content: flex-start;
+        gap: 10px;
+        width: 80%;
+        margin: auto;
+    }
+
+    .label-container {
+        font-weight: bold;
+        white-space: nowrap;
+        width: 150px; /* Adjust width to align properly */
+        text-align: left;
     }
 
     .d-flex {
         display: flex;
         align-items: center;
         gap: 10px;
+    }
+
+    .button-container {
+        display: flex;
+        gap: 10px;
+        align-items: center;
     }
 
     .form-control {
@@ -91,7 +104,7 @@
 <div id="printableArea">
     <!-- Top Bar: Student Statement Title and Session Dropdown -->
     <div class="top-bar">
-        <h2 id="text-center">Student Statement</h2>
+        <h2 id="statementTitle">Student Statement</h2>
         <div class="form-inline">
             <label for="session"><strong>Session:</strong></label>
             <select id="session" class="form-control">
@@ -102,8 +115,9 @@
 
     <!-- Filters: Date Pickers and Buttons -->
     <form method="get" class="transaction-container">
-        <label><strong>Transaction Date</strong></label>
-        <br />
+        <div class="label-container">
+            <label><strong>Transaction Date:</strong></label>
+        </div>
         <div class="d-flex">
             <div>
                 <label for="dateFrom">From</label>
@@ -114,11 +128,13 @@
                 <input type="date" id="dateTo" name="to" class="form-control" required />
             </div>
         </div>
-        <div>
+        <div class="button-container">
             <button type="button" onclick="filterTransactions()" class="btn btn-primary">View</button>
             <button type="button" onclick="printStatement()" class="btn btn-primary">Print</button>
         </div>
     </form>
+
+
 
     <!-- Table to Display Transactions -->
     <table class="statement-table" id="statementTable" style="display: none;">
@@ -192,3 +208,5 @@
         window.print();
     }
 </script>
+
+

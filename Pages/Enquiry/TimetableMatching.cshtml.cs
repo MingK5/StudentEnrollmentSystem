@@ -64,6 +64,30 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             return maxId + 1;
         }
 
+        private void LoadStudentData(string studentId)
+        {
+            Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
+            AvailableCourses = _context.Courses.ToList();
+            StudentUnavailability = _context.StudentUnavailability
+                .Where(su => su.StudentId == studentId)
+                .ToList();
+
+            AllCourses = _context.Enrolments
+                .Where(e => e.StudentId == studentId)
+                .Include(e => e.Course)
+                .Select(e => new TimetableViewModel
+                {
+                    Day = e.Course.Day,
+                    StartTime = e.Course.StartTime,
+                    EndTime = e.Course.EndTime,
+                    CourseId = e.Course.CourseId,
+                    CourseName = e.Course.CourseName,
+                    Credit = e.Course.Credit
+                }).ToList();
+        }
+
+
+
         public IActionResult OnPostAddUnavailability(string Day, TimeSpan StartTime, TimeSpan EndTime)
         {
             var studentId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -72,6 +96,27 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 return RedirectToPage("/Login");
             }
 
+            // Reload student data and courses to avoid disappearing data
+            LoadStudentData(studentId);
+
+            // Normalize input for case-insensitive comparison
+            string normalizedDay = Day.ToLower();
+
+            // Check if there is an existing unavailability with the same day and overlapping time
+            bool isDuplicate = _context.StudentUnavailability
+                .Any(su =>
+                    su.StudentId == studentId &&
+                    su.Day.ToLower() == normalizedDay &&
+                    !(EndTime <= su.StartTime || StartTime >= su.EndTime)
+                );
+
+            if (isDuplicate)
+            {
+                ModelState.AddModelError(string.Empty, "This unavailability period overlaps with an existing one.");
+                return Page();
+            }
+
+            // If no duplicate, add the new unavailability entry
             var newUnavailability = new StudentUnavailability
             {
                 StudentUnavailabilityId = GetNextStudentUnavailabilityId(),
@@ -86,6 +131,8 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             return RedirectToPage();
         }
+
+
 
         public IActionResult OnPostRemoveUnavailability(int id)
         {
@@ -107,27 +154,41 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 return RedirectToPage("/Login");
             }
 
-            var unavailability = _context.StudentUnavailability
+            // Get student details again
+            Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
+
+            // Get student unavailability again
+            StudentUnavailability = _context.StudentUnavailability
                 .Where(su => su.StudentId == studentId)
                 .ToList();
 
-            var allSchedules = _context.Courses
-                .Select(c => new TimetableViewModel
+            // Get all courses the student is enrolled in
+            AllCourses = _context.Enrolments
+                .Where(e => e.StudentId == studentId)
+                .Include(e => e.Course)
+                .Select(e => new TimetableViewModel
                 {
-                    Day = c.Day,
-                    StartTime = c.StartTime,
-                    EndTime = c.EndTime,
-                    CourseId = c.CourseId,
-                    CourseName = c.CourseName,
+                    Day = e.Course.Day,
+                    StartTime = e.Course.StartTime,
+                    EndTime = e.Course.EndTime,
+                    CourseId = e.Course.CourseId,
+                    CourseName = e.Course.CourseName,
+                    Credit = e.Course.Credit
                 }).ToList();
 
-            MatchingSchedule = allSchedules
-                .Where(schedule => !unavailability.Any(u =>
-                    u.Day == schedule.Day &&
-                    (schedule.StartTime < u.EndTime && schedule.EndTime > u.StartTime)))
+            // Filter out courses that overlap with unavailability times
+            MatchingSchedule = AllCourses
+                .Where(course => !StudentUnavailability.Any(unavailable =>
+                    unavailable.Day.Equals(course.Day, StringComparison.OrdinalIgnoreCase) && // Match day (case insensitive)
+                    !(course.EndTime <= unavailable.StartTime || course.StartTime >= unavailable.EndTime) // Overlapping condition
+                ))
                 .ToList();
 
             return Page();
         }
+
+
+
     }
 }
+
