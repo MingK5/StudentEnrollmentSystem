@@ -1,5 +1,352 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.AddDrop.CourseAddDropModel
+@inject IConfiguration Configuration
 @{
     Layout = "_Layout";
 }
+<h2>Course Add/Drop</h2>
+
+<div style="max-width:900px">
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Student ID </label>
+            <label>: @Model.StudentId</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">School </label>
+            <label>: @Model.Student.School</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Student Name </label>
+            <label>: @Model.StudentName</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Level </label>
+            <label>: @Model.Student.Level</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">IC/Passport No </label>
+            <label>: @Model.Student.IdentificationNo</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Program </label>
+            <label>: @Model.Student.Program</label>
+        </div>
+    </div>
+
+    <div class="info-row">
+        <div class="info-label">
+            <label class="info-title">Study Mode </label>
+            <label>: @Model.Student.StudyMode</label>
+        </div>
+        <div class="info-label">
+            <label class="info-title">Session </label>
+            <label>: @Configuration["Session"]</label>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<div style="font-weight:bold;text-decoration:underline">Courses Enrolled</div>
+<table id="enrolledTable" class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Course Code</th>
+            <th>Course Name</th>
+            <th>Drop Course</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.ActiveCourses.OrderBy(c => c.Day).ThenBy(c => c.StartTime))
+        {
+            <tr>
+                <td>@course.Day</td>
+                <td>
+                    @{
+                        string timeFormatted = course.StartTime.HasValue && course.EndTime.HasValue
+                        ? $"{course.StartTime.Value:hh\\:mm} - {course.EndTime.Value:hh\\:mm}"
+                        : "Time not available";
+                        @timeFormatted
+                    }
+                </td>
+                <td>@course.CourseId</td>
+                <td>@course.CourseName</td>
+                <td><button onclick="showDropCourseDialog(this, '@course.CourseId', '@course.CourseName', '@course.Day', '@timeFormatted')">Drop Course</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div style="color:red;font-weight:bold;text-decoration:underline">Add/Drop Summary</div>
+
+<table id="courseTable" class="table table-bordered" style="display:none">
+    <thead>
+        <tr>
+            <th>Day</th>
+            <th>Time</th>
+            <th>Course Code</th>
+            <th>Course Name</th>
+            <th>Reason</th>
+            <th>Action</th>
+            <th>Cancel</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<button type="button" style=" margin-bottom:10px; background-color:#bbf089; border-radius:8px; font-weight:500" onclick="document.getElementById('courseModal').showModal()">Click to add course</button>
+
+<form method="post">
+    <input type="hidden" name="StudentId" value="@Model.StudentId" />
+    <div id="selectedCoursesContainer"></div>
+
+    <button id="btnSubmit" type="submit" style="background-color:#89e6f0; border-radius:8px; font-weight:500" asp-page-handler="Submit">Submit</button>
+</form>
+
+<dialog id="dropCourseDialog">
+    <form method="post" onsubmit="handleDrop(); return false;">
+        <h2>Drop Course</h2>
+        <p>Please enter a reason for dropping this course:</p>
+        <input type="text" id="dropReasonInput" name="dropReason" required>
+        <button type="submit">Confirm</button>
+        <button type="button" onclick="document.getElementById('dropCourseDialog').close()">Close</button>
+    </form>
+</dialog>
+
+<dialog id="courseModal">
+    <form method="post" onsubmit="saveSelectedCourse(); return false;">
+        <h2>Select a Course</h2>
+        <input type="hidden" name="SelectedCourseId" asp-for="SelectedCourseIds" />
+
+        @if (Model.AvailableCourses.Any())
+        {
+            foreach (var course in Model.AvailableCourses)
+            {
+                string startTimeFormatted = course.StartTime.HasValue
+                ? DateTime.Today.Add(course.StartTime.Value).ToString("HH:mm")
+                : "N/A";
+                string endTimeFormatted = course.EndTime.HasValue
+                ? DateTime.Today.Add(course.EndTime.Value).ToString("HH:mm")
+                : "N/A";
+
+                <label>
+                    <input type="radio" class="course-radio" name="courseSelection" value="@course.CourseId" />
+                    @course.CourseId: @course.CourseName [@course.Day @startTimeFormatted to @endTimeFormatted]
+                </label>
+                <br />
+            }
+            <label for="reasonInput">Reason for selection:</label>
+            <input type="text" id="reasonInput" name="SelectionReason" required />
+
+            <button type="submit">Save</button>
+        }
+        else
+        {
+            <div>No available courses to select at this time. Please check back later.</div>
+        }
+
+
+        <button type="button" onclick="document.getElementById('courseModal').close()">Close</button>
+    </form>
+</dialog>
+
+<style>
+    .info-row {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .info-label {
+        width: 300px
+    }
+
+    .info-title {
+        width: 120px;
+        font-weight: bold
+    }
+</style>
+        
+<script>
+    function showDropCourseDialog(button, courseId, courseName, day, time) {
+        const dialog = document.getElementById('dropCourseDialog');
+        const dropReasonInput = document.getElementById('dropReasonInput');
+
+        const form = dialog.querySelector('form');
+        form.onsubmit = function() {
+            handleDrop(button, courseId, courseName, day, time);
+            return false;
+        };
+
+        dropReasonInput.value = '';
+        dialog.showModal();
+    }
+
+    function handleDrop(button, courseId, courseName, day, time) {
+        const reason = document.getElementById('dropReasonInput').value.trim();
+        if (reason) {
+            moveToCourseTable(button.parentElement.parentElement, courseId, courseName, day, time, reason);
+            document.getElementById('dropCourseDialog').close();
+        } else {
+            alert("You must enter a reason.");
+        }
+    }
+
+    function moveToCourseTable(row, courseId, courseName, day, time, reason) {
+        let enrolledTable = document.getElementById("enrolledTable");
+        let courseTable = document.getElementById("courseTable");
+        let tbody = courseTable.querySelector("tbody");
+
+        // Add the new row to courseTable
+        let newRow = tbody.insertRow();
+
+        newRow.innerHTML = `
+            <td>${day}</td>
+            <td>${time}</td>
+            <td>${courseId}</td>
+            <td>${courseName}</td>
+            <td>${reason}</td>
+            <td style="color:red; font-weight:bold">Drop</td>
+            <td><button onclick="removeRow(this)">Cancel</button></td>
+        `;
+
+        courseTable.style.display = "table";
+
+        enrolledTable.deleteRow(row.rowIndex);
+
+        document.getElementById("btnSubmit").style.display = "block";
+    }
+
+    function saveSelectedCourse() {
+        let selectedCourse = document.querySelector('.course-radio:checked');
+        let reasonInput = document.getElementById("reasonInput");
+
+        if (!selectedCourse || reasonInput === "") {
+            alert("Please select a course and enter a reason.");
+            return;
+        }
+
+        updateTable(selectedCourse, reasonInput.value.trim());
+
+        selectedCourse.checked = false;
+        selectedCourse.disabled = true;
+        reasonInput.value = "";
+
+        document.getElementById('courseModal').close();
+    }
+
+    function updateTable(selectedCourse, reasonInput) {
+        let table = document.getElementById("courseTable");
+        let tbody = table.querySelector("tbody");
+        let labelText = selectedCourse.closest("label").textContent.trim();
+        let courseDetails = labelText.split(" [");
+        let courseName = courseDetails[0].split(": ")[1] || "Unknown Course";
+        let courseTime = courseDetails.length > 1 ? courseDetails[1].replace("]", "") : "N/A";
+
+        // Create table row for selected course
+        let row = tbody.insertRow();
+        let cellDay = row.insertCell(0);
+        let cellTime = row.insertCell(1);
+        let cellCode = row.insertCell(2);
+        let cellName = row.insertCell(3);
+        let cellReason = row.insertCell(4);
+        let cellAction = row.insertCell(5);
+        let cellCancel = row.insertCell(6);
+
+        let detailsParts = courseTime.split(" ");
+        let day = detailsParts[0];
+        let time = detailsParts.slice(1).join(" ");
+
+        cellDay.innerHTML = day;
+        cellTime.innerHTML = time;
+        cellCode.innerHTML = selectedCourse.value;
+        cellName.innerHTML = courseName;
+        cellReason.innerHTML = reasonInput;
+        cellAction.innerHTML = `<span style="color:blue; font-weight:bold">Add</span>`;
+        cellCancel.innerHTML = `<button onclick="removeRow(this)">Cancel</button>`;
+
+        // Display the table if hidden
+        table.style.display = "table";
+        document.getElementById("btnSubmit").style.display = "block";
+    }
+
+    function removeRow(button) {
+        let row = button.parentElement.parentElement;
+        let table = document.getElementById("courseTable");
+        let tbody = table.querySelector("tbody");
+        let action = row.cells[5].textContent.trim();
+
+        if (action === "Add") {
+            row.remove();
+            let courseCode = row.cells[2].textContent;
+            let radioButtons = document.querySelectorAll('.course-radio');
+            radioButtons.forEach(rb => {
+                if (rb.value === courseCode) {
+                    rb.disabled = false;
+                    rb.closest("label").style.display = "";
+                }
+            });
+         } else if (action === "Drop") {
+            moveToEnrolledTable(row);
+         }
+
+        if (tbody.rows.length === 0) {
+            table.style.display = "none";
+
+            document.getElementById('btnSubmit').style.display = 'none';
+        }
+    }
+
+    function moveToEnrolledTable(row) {
+        let enrolledTable = document.getElementById("enrolledTable").querySelector("tbody");
+        let newRow = enrolledTable.insertRow();
+
+        newRow.innerHTML = `
+            <td>${row.cells[0].textContent}</td>
+            <td>${row.cells[1].textContent}</td>
+            <td>${row.cells[2].textContent}</td>
+            <td>${row.cells[3].textContent}</td>
+            <td><button onclick="showDropCourseDialog(this, '${row.cells[2].textContent}', '${row.cells[3].textContent}', '${row.cells[0].textContent}', '${row.cells[1].textContent}')">Drop Course</button></td>
+        `;
+
+        let courseTable = row.parentNode;
+        courseTable.removeChild(row);
+    }
+
+
+    function addCoursesToForm() {
+        let tbody = document.getElementById("courseTable").querySelector("tbody");
+        let selectedCoursesContainer = document.getElementById("selectedCoursesContainer");
+        selectedCoursesContainer.innerHTML = ""; // Clear previous inputs
+
+        Array.from(tbody.rows).forEach((row) => {
+            let courseCode = row.cells[2].textContent;
+            let courseReaosn = row.cells[4].textContent;
+            let courseAction = row.cells[5].textContent;
+
+            // Create hidden inputs for form submission
+            selectedCoursesContainer.appendChild(createHiddenInput('SelectedCourseIds', courseCode));
+            selectedCoursesContainer.appendChild(createHiddenInput('SelectionReason', courseReaosn));
+            selectedCoursesContainer.appendChild(createHiddenInput('SelectionAction', courseAction));
+        });
+    }
+
+    function createHiddenInput(name, value) {
+        let input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        return input;
+    }
+
+    document.getElementById("btnSubmit").addEventListener("click", addCoursesToForm);
+</script>

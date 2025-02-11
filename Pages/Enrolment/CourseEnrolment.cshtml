@@ -52,13 +52,13 @@
     </div>
 </div>
 
-<br/>
-<br/>
+<br />
+<br />
 
 <div style="color:red;font-weight:bold;text-decoration:underline">Courses Summary</div>
 <div style="padding:1px 0">Please select course(s) to be enrolled in:</div>
 
-<button type="button" style="background-color:#bbf089; border-radius:8px; font-weight:500" onclick="document.getElementById('courseModal').showModal()">Add course</button>
+<button type="button" style="margin-bottom:10px; background-color:#bbf089; border-radius:8px; font-weight:500" onclick="document.getElementById('courseModal').showModal()">Add course</button>
 
 <dialog id="courseModal">
     <form method="post" onsubmit="saveSelectedCourses(); return false;">
@@ -68,11 +68,10 @@
         @foreach (var course in Model.AvailableCourses)
         {
             string startTimeFormatted = course.StartTime.HasValue
-            ? DateTime.Today.Add(course.StartTime.Value).ToString("hh:mm tt")
+            ? DateTime.Today.Add(course.StartTime.Value).ToString("HH:mm")
             : "N/A";
-
             string endTimeFormatted = course.EndTime.HasValue
-            ? DateTime.Today.Add(course.EndTime.Value).ToString("hh:mm tt")
+            ? DateTime.Today.Add(course.EndTime.Value).ToString("HH:mm")
             : "N/A";
 
             <label>
@@ -91,10 +90,17 @@
 <form method="post">
     <input type="hidden" name="StudentId" value="@Model.StudentId" />
     <div id="selectedCoursesContainer"></div>
-    <table id="courseTable" style="display:none; margin:20px 0; ">
-        <tr>
-            <th>Selected Courses</th>
-        </tr>
+    <table id="courseTable" class="table table-bordered" style="display:none; font-weight:bold">
+        <thead>
+            <tr>
+                <th>Day</th>
+                <th>Time</th>
+                <th>Course Code</th>
+                <th>Course Name</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
     </table>
     <button id="btnSubmit" type="submit" style="display:none; background-color:#89e6f0; border-radius:8px; font-weight:500" asp-page-handler="Submit">Submit</button>
 </form>
@@ -106,12 +112,12 @@
     }
 
     .info-label {
-        width:300px
+        width: 300px
     }
 
     .info-title {
         width: 120px;
-        font-weight:bold
+        font-weight: bold
     }
 
     dialog {
@@ -120,11 +126,6 @@
         padding: 20px;
         width: 700px;
     }
-
-    table, th, td {
-        border: 1px solid black;
-        border-collapse: collapse;
-    }
 </style>
 
 
@@ -132,37 +133,50 @@
     function saveSelectedCourses() {
         let checkboxes = document.querySelectorAll('.course-checkbox:checked');
         let selectedCoursesContainer = document.getElementById("selectedCoursesContainer");
+        let table = document.getElementById("courseTable");
+        let tbody = table.querySelector("tbody");
 
-        selectedCoursesContainer.innerHTML = ""; // Clear existing inputs
+        selectedCoursesContainer.innerHTML = "";
+        tbody.innerHTML = "";
 
         if (checkboxes.length === 0) {
             alert("Please select at least one course.");
             return;
         }
 
-        // Append multiple hidden inputs for selected courses
         checkboxes.forEach((checkbox) => {
             let input = document.createElement("input");
             input.type = "hidden";
-            input.name = "SelectedCourseIds"; // Multiple inputs with the same name
+            input.name = "SelectedCourseIds";
             input.value = checkbox.value;
             selectedCoursesContainer.appendChild(input);
+
+            let courseDetails = checkbox.nextSibling.textContent.trim().split(" [");
+            let courseName = courseDetails[0].split(": ")[1];
+            let courseTime = courseDetails.length > 1 ? courseDetails[1].replace("]", "") : "N/A";
+
+            let row = tbody.insertRow();
+            let cellDay = row.insertCell(0);
+            let cellTime = row.insertCell(1);
+            let cellCode = row.insertCell(2);
+            let cellName = row.insertCell(3);
+
+            let courseCode = checkbox.value;
+
+            let detailsParts = courseTime.split(" ");
+            let day = detailsParts[0];
+            let time = detailsParts.slice(1).join(" ");
+
+            cellDay.innerHTML = day;
+            cellTime.innerHTML = time;
+            cellCode.innerHTML = courseCode;
+            cellName.innerHTML = courseName;
         });
 
-        // Show selected courses in table
-        let table = document.getElementById("courseTable");
         table.style.display = "table";
-        table.innerHTML = "<tr><th>Selected Courses</th></tr>";
-
-        checkboxes.forEach((checkbox) => {
-            let row = table.insertRow();
-            let cell = row.insertCell(0);
-            cell.innerHTML = checkbox.nextSibling.textContent.trim();
-        });
-
-        let btnSubmit = document.getElementById("btnSubmit");
-        btnSubmit.style.display = "block";
+        document.getElementById("btnSubmit").style.display = "block";
 
         document.getElementById('courseModal').close();
     }
 </script>
+

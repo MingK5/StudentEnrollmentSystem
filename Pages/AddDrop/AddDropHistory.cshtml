@@ -1,5 +1,59 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.AddDrop.AddDropHistoryModel
+@inject IConfiguration Configuration
 @{
     Layout = "_Layout";
 }
+<h2>Add / Drop History</h2>
+
+<div style="max-width:900px">
+    <div>
+        <div>
+            <label class="info-title">Student ID </label>
+            <label>: @Model.StudentId</label>
+        </div>
+        <div>
+            <label class="info-title">Student Name </label>
+            <label>: @Model.StudentName</label>
+        </div>
+        <div>
+            <label class="info-title">Session </label>
+            <label>: @Configuration["Session"]</label>
+        </div>
+    </div>
+</div>
+
+<div style="font-weight:bold;text-decoration:underline; margin:15px 0">Your Add / Drop history during @Configuration["Session"] is as follows:</div>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course Code</th>
+            <th>Course Name</th>
+            <th>Action</th>
+            <th>Reason</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.EnrolledCourses.OrderBy(c => c.Day).ThenBy(c => c.StartTime))
+        {
+            <tr>
+                <td>@course.CourseId</td>
+                <td>@course.CourseName</td>
+                <td style="font-weight: bold; color: @(course.Action == "Add" ? "blue" : "red");">
+                    @course.Action
+                </td>
+
+                <td>@course.Reason</td>
+                <td>@course.DatePerformed</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<style>
+    .info-title {
+        width: 120px;
+        font-weight: bold
+    }
+</style>

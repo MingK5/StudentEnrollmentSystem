@@ -9,5 +9,8 @@
         public TimeSpan? StartTime { get; set; } // Add start time
         public TimeSpan? EndTime { get; set; } // Add end time
         public string Day { get; set; } = string.Empty; // Add Day property
+        public string Action { get; set; } = string.Empty;
+        public string Reason { get; set; } = string.Empty;
+        public DateTime? DatePerformed { get; set; }
     }
 }

@@ -47,30 +47,15 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
             Session = _configuration["Session"] ?? string.Empty;
 
-            Console.WriteLine($"[DEBUG] Retrieved StudentId from claims: '{StudentId}'");
-
-            if (string.IsNullOrEmpty(StudentId))
-            {
-                Console.WriteLine("[ERROR] StudentId is NULL. Login session might be broken.");
-                return RedirectToPage("/Login");
-            }
-
-            // Fetch student record
             Student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == StudentId);
-
-            if (Student == null)
-            {
-                Console.WriteLine("[ERROR] Student not found in database!");
-                return NotFound();
-            }
 
             var existingEnrollment = await _context.Enrolments.FirstOrDefaultAsync(e => e.StudentId == StudentId && e.Session == Session);
 
-            if (existingEnrollment != null)
-            {
-                TempData["ErrorMessage"] = "You are already enrolled in this session!";
-                return RedirectToPage("/Main"); // Redirect to main page
-            }
+            //if (existingEnrollment != null)
+            //{
+            //    TempData["ErrorMessage"] = "You are already enrolled in this session!";
+            //    return RedirectToPage("/Main"); // Redirect to main page
+            //}
 
             AvailableCourses = await _context.Courses
                 .Select(c => new Course
@@ -86,12 +71,12 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
 
             return Page();
         }
+
         public async Task<IActionResult> OnPostSubmitAsync()
         {
             if (string.IsNullOrWhiteSpace(StudentId))
             {
                 StudentId = Request.Form["StudentId"].ToString().Trim();
-                Console.WriteLine($"DEBUG: Retrieved StudentId from form: '{StudentId}'");
             }
             int newEnrollmentId = await GenerateNewEnrolId();
             int newTransactionId = await GenerateNewTransactionId();
