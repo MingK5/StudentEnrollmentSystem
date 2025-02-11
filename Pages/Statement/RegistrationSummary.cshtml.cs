@@ -12,10 +12,11 @@ namespace StudentEnrollmentSystem.Pages.Statement
     public class RegistrationSummaryModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-
-        public RegistrationSummaryModel(ApplicationDbContext context)
+        private readonly IConfiguration _configuration;
+        public RegistrationSummaryModel(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public string StudentName { get; set; } = string.Empty;
@@ -23,7 +24,7 @@ namespace StudentEnrollmentSystem.Pages.Statement
         public string Program { get; set; } = string.Empty;
         public List<EnrolledCourseViewModel> EnrolledCourses { get; set; } = new List<EnrolledCourseViewModel>();
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             var user = HttpContext.User;
 
@@ -37,10 +38,16 @@ namespace StudentEnrollmentSystem.Pages.Statement
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
+            var Session = _configuration["Session"] ?? string.Empty;
 
-            // Fetch enrolled courses for the student
-            EnrolledCourses = _context.Enrolments
-                .Where(e => e.StudentId == StudentId) // Corrected StudentId type
+            var lastCourses = await _context.Enrolments
+                .Where(e => e.StudentId == StudentId && e.Session == Session)
+                .GroupBy(e => e.CourseId)
+                .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
+                .ToListAsync();
+
+            EnrolledCourses = lastCourses
+                .Where(e => e.StudentId == StudentId && (e.Action == "Enrol" || e.Action == "Add")) 
                 .Join(
                     _context.Courses,
                     enrol => enrol.CourseId,
@@ -49,11 +56,10 @@ namespace StudentEnrollmentSystem.Pages.Statement
                     {
                         CourseId = course.CourseId,
                         CourseName = course.CourseName,
-                        Lecturer = course.Lecturer,
                         Credit = course.Credit,
-                        StartTime = course.StartTime,  
-                        EndTime = course.EndTime,      
-                        Day = course.Day               
+                        StartTime = course.StartTime,
+                        EndTime = course.EndTime,
+                        Day = course.Day
                     })
                 .ToList();
 

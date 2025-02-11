@@ -1,16 +1,17 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Enquiry.StudentEvaluationModel
+@inject IConfiguration Configuration
 @{
     Layout = "_Layout";
 }
 
 <div class="container mt-4">
-    <h2 class="text-center">Student Evaluation</h2>
+    <h2 class="text-center">Student Evaluation [@Configuration["Session"]]</h2>
 
     <form method="post" id="evaluationForm">
         <div class="form-group">
             <label for="courseSelect">Course Enrolled:</label>
-            <select id="courseSelect" asp-for="SelectedCourseId" asp-items="Model.CourseList" class="form-control" required>
+            <select id="courseSelect" asp-for="EnrolId" asp-items="Model.CourseList" class="form-control" required>
                 <option value="">-- Select Course --</option>
             </select>
         </div>
@@ -92,7 +93,7 @@
         let evaluatedCourses = [];
 
         courseSelect.addEventListener("change", function () {
-            const courseId = this.value;
+            const courseId = this.options[this.selectedIndex].text;
 
             if (!courseId) {
                 resetCourseDetails();
@@ -190,6 +191,7 @@
 
             if (options.length === 1) {
                 alert("All enrolled courses have been evaluated.");
+                window.location.href = "/Main";
             }
         }
     });

@@ -59,34 +59,20 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
             if (existingEnrollment == null)
             {
                 TempData["ErrorMessage"] = "Please enrol the courses first.";
-                return RedirectToPage("/Main"); // Redirect to main page
+                return RedirectToPage("/Main"); 
             }
-
-            AvailableCourses = _context.Courses
-                .Where(course => !_context.Enrolments
-                    .Any(enrol => enrol.StudentId == StudentId && enrol.CourseId == course.CourseId))
-                .Select(course => new EnrolledCourseViewModel
-                {
-                    CourseId = course.CourseId,
-                    CourseName = course.CourseName,
-                    Credit = course.Credit,
-                    StartTime = course.StartTime,
-                    EndTime = course.EndTime,
-                    Day = course.Day
-                })
-                .ToList();
 
             var lastCourses = await _context.Enrolments
                 .Where(e => e.StudentId == StudentId && e.Session == Session)
                 .GroupBy(e => e.CourseId)
                 .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
-                .ToListAsync(); // Ensure this query executes first
+                .ToListAsync(); 
 
             AvailableCourses = _context.Courses
-                .AsEnumerable() // Switch to client-side processing
+                .AsEnumerable() 
                 .Where(course =>
-                    !lastCourses.Any(e => e.CourseId == course.CourseId) // Never enrolled
-                    || lastCourses.Any(e => e.CourseId == course.CourseId && e.Action == "Drop") // Last action was "Drop"
+                    !lastCourses.Any(e => e.CourseId == course.CourseId) 
+                    || lastCourses.Any(e => e.CourseId == course.CourseId && e.Action == "Drop") 
                 )
                 .Select(course => new EnrolledCourseViewModel
                 {

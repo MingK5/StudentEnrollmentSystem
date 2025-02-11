@@ -1,6 +1,6 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Enquiry.TimetableMatchingModel
-
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "Timetable Matching";
 }
@@ -14,6 +14,7 @@
         <p><strong>Name:</strong> @Model.Student.StudentName</p>
         <p><strong>Student ID:</strong> @Model.Student.StudentId</p>
         <p><strong>Program:</strong> @Model.Student.Program</p>
+        <p><strong>Session:</strong> @Configuration["Session"]</p>
     </div>
 </div>
 

@@ -1,5 +1,6 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Statement.RegistrationSummaryModel
+@inject IConfiguration Configuration
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Registration Summary";
@@ -21,6 +22,7 @@
             <p><strong>Name:</strong> @Model.StudentName</p>
             <p><strong>Student ID:</strong> @Model.StudentId</p>
             <p><strong>Program:</strong> @Model.Program</p>
+            <p><strong>Session:</strong> @Configuration["Session"]</p>
         </div>
     </div>
 

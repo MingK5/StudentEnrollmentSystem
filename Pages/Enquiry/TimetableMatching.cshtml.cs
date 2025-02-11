@@ -7,16 +7,19 @@ using System.Linq;
 using System.Security.Claims;
 using StudentEnrollmentSystem.Data;
 using StudentEnrollmentSystem.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace StudentEnrollmentSystem.Pages.Enquiry
 {
     public class TimetableMatchingModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly IConfiguration _configuration;
 
-        public TimetableMatchingModel(ApplicationDbContext context)
+        public TimetableMatchingModel(ApplicationDbContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
         public Student Student { get; set; } = new();
@@ -25,7 +28,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         public List<TimetableViewModel> AllCourses { get; set; } = new();
         public List<TimetableViewModel> MatchingSchedule { get; set; } = new();
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             var user = HttpContext.User;
 
@@ -35,6 +38,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             }
 
             var studentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+            var Session = _configuration["Session"] ?? string.Empty;
 
             Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
             AvailableCourses = _context.Courses.ToList();
@@ -42,9 +46,14 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 .Where(su => su.StudentId == studentId)
                 .ToList();
 
-            AllCourses = _context.Enrolments
-                .Where(e => e.StudentId == studentId)
-                .Include(e => e.Course)
+            var lastCourses = await _context.Enrolments
+                .Where(e => e.StudentId == studentId && e.Session == Session)
+                .GroupBy(e => e.CourseId)
+                .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
+                .ToListAsync();
+
+            AllCourses = lastCourses
+                .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
                 .Select(e => new TimetableViewModel
                 {
                     Day = e.Course.Day,
