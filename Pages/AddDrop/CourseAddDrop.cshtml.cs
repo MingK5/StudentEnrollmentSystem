@@ -198,7 +198,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
 
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Enrollment successful!";
+            TempData["SuccessMessage"] = "Add / Drop courses successfully!";
             return RedirectToPage("/Main");
         }
 
