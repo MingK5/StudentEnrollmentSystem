@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace StudentEnrollmentSystem.Pages.Enquiry
 {
     public class StudentEvaluationModel : PageModel
@@ -44,46 +45,30 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             string studentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
-            var session = _configuration["Session"] ?? string.Empty;
+            var Session = _configuration["Session"] ?? string.Empty;
 
-            // Fetch enrolled courses
             var lastCourses = await _context.Enrolments
-                .Where(e => e.StudentId == studentId && e.Session == session)
-                .Include(e => e.Course)  // Ensure Course data is included
+                .Where(e => e.StudentId == studentId && e.Session == Session)
                 .GroupBy(e => e.CourseId)
                 .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
                 .ToListAsync();
 
             var enrolledCourses = lastCourses
-                .Where(e => e.Course != null && (e.Action == "Enrolled" || e.Action == "Add")) // Fixed Action check
+                .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
                 .Select(e => new { e.EnrolId, e.CourseId, e.DatePerformed })
                 .ToList();
 
-            // Check which enrollments have been evaluated
             var evaluatedEnrollments = await _context.Evaluations
                 .Where(ev => enrolledCourses.Select(e => e.EnrolId).Contains(ev.EnrolId))
                 .Select(ev => ev.EnrolId)
                 .ToListAsync();
 
-            // Ensure `CourseList` gets **ALL** enrolled courses if `Evaluations` is empty
-            if (!evaluatedEnrollments.Any() && enrolledCourses.Any())
-            {
-                // If no evaluations exist, show all courses to be evaluated
-                CourseList = enrolledCourses
-                    .Select(e => new SelectListItem { Value = e.EnrolId.ToString(), Text = e.CourseId })
-                    .ToList();
-            }
-            else
-            {
-                // Otherwise, filter out evaluated courses
-                CourseList = enrolledCourses
-                    .Where(e => !evaluatedEnrollments.Contains(e.EnrolId))
-                    .Select(e => new SelectListItem { Value = e.EnrolId.ToString(), Text = e.CourseId })
-                    .ToList();
-            }
+            CourseList = enrolledCourses
+                .Where(e => !evaluatedEnrollments.Contains(e.EnrolId))
+                .Select(e => new SelectListItem { Value = e.EnrolId.ToString(), Text = e.CourseId })
+                .ToList();
 
-            //Prevent incorrect "All courses evaluated" message when no evaluations exist
-            if (enrolledCourses.Any() && !CourseList.Any() && evaluatedEnrollments.Any())
+            if (CourseList.Count == 0)
             {
                 TempData["ErrorMessage"] = "All enrolled courses have been evaluated.";
                 return RedirectToPage("/Main");
@@ -95,7 +80,12 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         public async Task<JsonResult> OnGetGetCourseDetailsAsync(string courseId)
         {
             var courseData = await _context.Courses
-                .Where(c => c.CourseId == courseId)
+                .Where(c => c.CourseId == courseId &&
+                    !_context.Evaluations.Any(e => e.EnrolId ==
+                        _context.Enrolments
+                        .Where(en => en.CourseId == courseId && en.StudentId == StudentId)
+                        .Select(en => en.EnrolId)
+                        .FirstOrDefault()))
                 .FirstOrDefaultAsync();
 
             if (courseData == null)
@@ -120,6 +110,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             };
 
             return new JsonResult(course);
+
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -142,3 +133,5 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         }
     }
 }
+
+

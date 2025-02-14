@@ -42,13 +42,12 @@ namespace StudentEnrollmentSystem.Pages.Statement
 
             var lastCourses = await _context.Enrolments
                 .Where(e => e.StudentId == StudentId && e.Session == Session)
-                .Include(e => e.Course)
                 .GroupBy(e => e.CourseId)
                 .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
                 .ToListAsync();
 
             EnrolledCourses = lastCourses
-                .Where(e => e.StudentId == StudentId && (e.Action == "Enrolled" || e.Action == "Add")) 
+                .Where(e => e.StudentId == StudentId && (e.Action == "Enrol" || e.Action == "Add")) 
                 .Join(
                     _context.Courses,
                     enrol => enrol.CourseId,
@@ -57,7 +56,6 @@ namespace StudentEnrollmentSystem.Pages.Statement
                     {
                         CourseId = course.CourseId,
                         CourseName = course.CourseName,
-                        Lecturer = course.Lecturer,
                         Credit = course.Credit,
                         StartTime = course.StartTime,
                         EndTime = course.EndTime,

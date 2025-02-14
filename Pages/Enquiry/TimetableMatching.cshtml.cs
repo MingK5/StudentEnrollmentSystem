@@ -40,21 +40,20 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             var studentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             var Session = _configuration["Session"] ?? string.Empty;
 
-            Student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == studentId) ?? new Student();
-            AvailableCourses = await _context.Courses.ToListAsync();
-            StudentUnavailability = await _context.StudentUnavailability
+            Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
+            AvailableCourses = _context.Courses.ToList();
+            StudentUnavailability = _context.StudentUnavailability
                 .Where(su => su.StudentId == studentId)
-                .ToListAsync();
+                .ToList();
 
             var lastCourses = await _context.Enrolments
                 .Where(e => e.StudentId == studentId && e.Session == Session)
-                .Include(e => e.Course) 
                 .GroupBy(e => e.CourseId)
                 .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
                 .ToListAsync();
 
             AllCourses = lastCourses
-                .Where(e => e.StudentId == studentId && (e.Action == "Enrolled" || e.Action == "Add"))
+                .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
                 .Select(e => new TimetableViewModel
                 {
                     Day = e.Course.Day,
@@ -201,5 +200,4 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
     }
 }
-
 
