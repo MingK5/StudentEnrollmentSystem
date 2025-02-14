@@ -51,11 +51,11 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
 
             var existingEnrollment = await _context.Enrolments.FirstOrDefaultAsync(e => e.StudentId == StudentId && e.Session == Session);
 
-            //if (existingEnrollment != null)
-            //{
-            //    TempData["ErrorMessage"] = "You are already enrolled in this session!";
-            //    return RedirectToPage("/Main"); // Redirect to main page
-            //}
+            if (existingEnrollment != null)
+            {
+                TempData["ErrorMessage"] = "You are already enrolled in this session!";
+                return RedirectToPage("/Main"); // Redirect to main page
+            }
 
             AvailableCourses = await _context.Courses
                 .Select(c => new Course

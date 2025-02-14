@@ -25,8 +25,10 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         public Student Student { get; set; } = new();
         public List<Course> AvailableCourses { get; set; } = new();
         public List<StudentUnavailability> StudentUnavailability { get; set; } = new();
-        public List<TimetableViewModel> AllCourses { get; set; } = new();
-        public List<TimetableViewModel> MatchingSchedule { get; set; } = new();
+        public List<EnrolledCourseViewModel> AllCourses { get; set; } = new();
+        public List<EnrolledCourseViewModel> MatchingSchedule { get; set; } = new();
+
+        public bool ShowModal { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -41,7 +43,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             var Session = _configuration["Session"] ?? string.Empty;
 
             Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
-            AvailableCourses = _context.Courses.ToList();
+
             StudentUnavailability = _context.StudentUnavailability
                 .Where(su => su.StudentId == studentId)
                 .ToList();
@@ -54,15 +56,20 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
 
             AllCourses = lastCourses
                 .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
-                .Select(e => new TimetableViewModel
-                {
-                    Day = e.Course.Day,
-                    StartTime = e.Course.StartTime,
-                    EndTime = e.Course.EndTime,
-                    CourseId = e.Course.CourseId,
-                    CourseName = e.Course.CourseName,
-                    Credit = e.Course.Credit
-                }).ToList();
+                .Join(
+                    _context.Courses,
+                    enrol => enrol.CourseId,
+                    course => course.CourseId,
+                    (enrol, course) => new EnrolledCourseViewModel
+                    {
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        Credit = course.Credit,
+                        StartTime = course.StartTime,
+                        EndTime = course.EndTime,
+                        Day = course.Day
+                    })
+                .ToList();
 
             return Page();
         }
@@ -73,31 +80,43 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             return maxId + 1;
         }
 
-        private void LoadStudentData(string studentId)
+        private async Task LoadStudentData(string studentId)
         {
             Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
-            AvailableCourses = _context.Courses.ToList();
+
             StudentUnavailability = _context.StudentUnavailability
                 .Where(su => su.StudentId == studentId)
                 .ToList();
 
-            AllCourses = _context.Enrolments
-                .Where(e => e.StudentId == studentId)
-                .Include(e => e.Course)
-                .Select(e => new TimetableViewModel
-                {
-                    Day = e.Course.Day,
-                    StartTime = e.Course.StartTime,
-                    EndTime = e.Course.EndTime,
-                    CourseId = e.Course.CourseId,
-                    CourseName = e.Course.CourseName,
-                    Credit = e.Course.Credit
-                }).ToList();
+            var Session = _configuration["Session"] ?? string.Empty;
+
+            var lastCourses = await _context.Enrolments
+                .Where(e => e.StudentId == studentId && e.Session == Session)
+                .GroupBy(e => e.CourseId)
+                .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
+                .ToListAsync();
+
+            AllCourses = lastCourses
+                .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
+                .Join(
+                    _context.Courses,
+                    enrol => enrol.CourseId,
+                    course => course.CourseId,
+                    (enrol, course) => new EnrolledCourseViewModel
+                    {
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        Credit = course.Credit,
+                        StartTime = course.StartTime,
+                        EndTime = course.EndTime,
+                        Day = course.Day
+                    })
+                .ToList();
         }
 
 
 
-        public IActionResult OnPostAddUnavailability(string Day, TimeSpan StartTime, TimeSpan EndTime)
+        public async Task<IActionResult> OnPostAddUnavailability(string Day, TimeSpan StartTime, TimeSpan EndTime)
         {
             var studentId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(studentId))
@@ -106,14 +125,14 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             }
 
             // Reload student data and courses to avoid disappearing data
-            LoadStudentData(studentId);
+            await LoadStudentData(studentId);
 
             // Normalize input for case-insensitive comparison
             string normalizedDay = Day.ToLower();
 
             // Check if there is an existing unavailability with the same day and overlapping time
-            bool isDuplicate = _context.StudentUnavailability
-                .Any(su =>
+            bool isDuplicate = await _context.StudentUnavailability
+                .AnyAsync(su =>
                     su.StudentId == studentId &&
                     su.Day.ToLower() == normalizedDay &&
                     !(EndTime <= su.StartTime || StartTime >= su.EndTime)
@@ -136,7 +155,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             };
 
             _context.StudentUnavailability.Add(newUnavailability);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return RedirectToPage();
         }
@@ -155,7 +174,7 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             return RedirectToPage();
         }
 
-        public IActionResult OnPostStartMatching()
+        public async Task<IActionResult> OnPostStartMatching()
         {
             var studentId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(studentId))
@@ -166,24 +185,37 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             // Get student details again
             Student = _context.Students.FirstOrDefault(s => s.StudentId == studentId) ?? new Student();
 
+            var Session = _configuration["Session"] ?? string.Empty;
+
             // Get student unavailability again
             StudentUnavailability = _context.StudentUnavailability
                 .Where(su => su.StudentId == studentId)
                 .ToList();
 
             // Get all courses the student is enrolled in
-            AllCourses = _context.Enrolments
-                .Where(e => e.StudentId == studentId)
-                .Include(e => e.Course)
-                .Select(e => new TimetableViewModel
-                {
-                    Day = e.Course.Day,
-                    StartTime = e.Course.StartTime,
-                    EndTime = e.Course.EndTime,
-                    CourseId = e.Course.CourseId,
-                    CourseName = e.Course.CourseName,
-                    Credit = e.Course.Credit
-                }).ToList();
+            var lastCourses = await _context.Enrolments
+                .Where(e => e.StudentId == studentId && e.Session == Session)
+                .GroupBy(e => e.CourseId)
+                .Select(g => g.OrderByDescending(e => e.DatePerformed).First())
+                .ToListAsync();
+
+            AllCourses = lastCourses
+                .Where(e => e.StudentId == studentId && (e.Action == "Enrol" || e.Action == "Add"))
+                .Join(
+                    _context.Courses,
+                    enrol => enrol.CourseId,
+                    course => course.CourseId,
+                    (enrol, course) => new EnrolledCourseViewModel
+                    {
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        Credit = course.Credit,
+                        StartTime = course.StartTime,
+                        EndTime = course.EndTime,
+                        Day = course.Day
+                    })
+                .ToList();
+
 
             // Filter out courses that overlap with unavailability times
             MatchingSchedule = AllCourses
@@ -192,6 +224,8 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                     !(course.EndTime <= unavailable.StartTime || course.StartTime >= unavailable.EndTime) // Overlapping condition
                 ))
                 .ToList();
+
+            ShowModal = true;
 
             return Page();
         }

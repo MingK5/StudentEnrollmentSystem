@@ -7,7 +7,6 @@
 
 <h2>Timetable Matching</h2>
 
-<!-- Student Information Section -->
 <div class="card mb-3">
     <div class="card-body">
         <h5 class="card-title">Student Details</h5>
@@ -18,7 +17,6 @@
     </div>
 </div>
 
-<!-- Courses to Be Matched -->
 <h3>Courses to Be Matched</h3>
 <table class="table table-bordered">
     <thead>
@@ -40,7 +38,6 @@
     </tbody>
 </table>
 
-<!-- Non-Available Time Table (Including Add Row for Consistency) -->
 <h3>Non-Available Time</h3>
 <table class="table table-bordered">
     <thead>
@@ -59,7 +56,6 @@
                 <td>@($"{time.StartTime:hh\\:mm}")</td>
                 <td>@($"{time.EndTime:hh\\:mm}")</td>
                 <td>
-                    <!-- Separate form for each Remove button -->
                     <form method="post">
                         <input type="hidden" name="id" value="@time.StudentUnavailabilityId" />
                         <button type="submit" asp-page-handler="RemoveUnavailability" class="btn btn-danger">
@@ -70,12 +66,9 @@
             </tr>
         }
 
-        <!-- Form for Adding New Unavailability (Now Inside the Same Table) -->
         <tr>
             <form method="post">
-                <!-- Validation summary to display error messages -->
             <td colspan="4">
-                <!-- Span across all columns to make the message visible -->
                 <div asp-validation-summary="All" class="text-danger"></div>
             </td>
             </form>
@@ -193,5 +186,3 @@
         </div>
     </div>
 </div>
-
-
