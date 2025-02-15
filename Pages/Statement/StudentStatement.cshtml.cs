@@ -6,6 +6,7 @@ using StudentEnrollmentSystem.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace StudentEnrollmentSystem.Pages.Statement
@@ -23,6 +24,10 @@ namespace StudentEnrollmentSystem.Pages.Statement
 
         public async Task<IActionResult> OnGetFilterTransactionsAsync(string dateFrom, string dateTo)
         {
+            var user = HttpContext.User;
+
+            var studentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+
             if (string.IsNullOrEmpty(dateFrom) || string.IsNullOrEmpty(dateTo))
             {
                 return new JsonResult(new List<StudentAccount>());
@@ -32,7 +37,7 @@ namespace StudentEnrollmentSystem.Pages.Statement
             DateTime endDate = DateTime.Parse(dateTo).AddDays(1).AddSeconds(-1); // Extend to end of the day
 
             var transactions = await _context.StudentAccounts
-                .Where(s => s.Status == "Approved" && s.TransactionDate >= startDate && s.TransactionDate <= endDate)
+                .Where(s => s.StudentId== studentId && s.Status == "Approved" && s.TransactionDate >= startDate && s.TransactionDate <= endDate)
                 .OrderBy(s => s.TransactionDate)
                 .ToListAsync();
 
