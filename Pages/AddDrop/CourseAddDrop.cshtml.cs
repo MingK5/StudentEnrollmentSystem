@@ -143,11 +143,11 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                 .ToListAsync();
 
             var courseIdsToDrop = SelectedCourseIds
-                .Where((id, index) => SelectionAction[index].Contains("Add"))
+                .Where((id, index) => SelectionAction[index].Contains("Drop"))
                 .ToList();
 
             var dropCourses = await _context.Courses
-                .Where(c => courseIdsToAdd.Contains(c.CourseId))
+                .Where(c => courseIdsToDrop.Contains(c.CourseId))
                 .ToListAsync();
 
             if (addCourses.Any())
@@ -177,7 +177,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
             {
                 int newTransactionId = await GenerateNewTransactionId(!addCourses.Any());
                 string newDocumentNo = await GenerateNewDocumentNo(!addCourses.Any());
-                creditAmt = addCourses.Sum(c => c.CourseFee);
+                creditAmt = dropCourses.Sum(c => c.CourseFee);
 
                 var transaction = new StudentAccount
                 {
@@ -190,7 +190,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                     Session = _configuration["Session"],
                     Status = "Approved",
                     Message = "Transaction is recorded.",
-                    Amount = -debitAmt,
+                    Amount = -creditAmt,
                 };
 
                 _context.StudentAccounts.Add(transaction);

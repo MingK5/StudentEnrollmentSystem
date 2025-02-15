@@ -117,11 +117,14 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
         {
             if (!ModelState.IsValid) return Page();
 
+            int newEvaluationId = await GenerateNewId();
+
             var enrolment = await _context.Enrolments
                 .FirstOrDefaultAsync(e => e.EnrolId == EnrolId);
 
             if (enrolment != null)
             {
+                Evaluation.EvaluationId = newEvaluationId;
                 Evaluation.EnrolId = enrolment.EnrolId;
                 _context.Evaluations.Add(Evaluation);
                 await _context.SaveChangesAsync();
@@ -130,6 +133,22 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
             }
 
             return new JsonResult(new { success = false });
+        }
+
+        private async Task<int> GenerateNewId()
+        {
+            var lastTransaction = await _context.Evaluations
+                .OrderByDescending(t => t.EvaluationId)
+                .FirstOrDefaultAsync();
+
+            int newId = 1001;
+
+            if (lastTransaction != null)
+            {
+                newId = lastTransaction.EvaluationId + 1;
+            }
+
+            return newId;
         }
     }
 }

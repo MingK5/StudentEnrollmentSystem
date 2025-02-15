@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StudentEnrollmentSystem.Data;
 using StudentEnrollmentSystem.Models;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace StudentEnrollmentSystem.Pages.ContactUs
@@ -41,11 +42,15 @@ namespace StudentEnrollmentSystem.Pages.ContactUs
 
         public void OnGet()
         {
+
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            // Validate input
+            var user = HttpContext.User;
+
+            var studentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
+
             if (string.IsNullOrWhiteSpace(Category) || string.IsNullOrWhiteSpace(Subject) || string.IsNullOrWhiteSpace(Message))
             {
                 TempData["ErrorMessage"] = "All fields must be filled out.";
@@ -55,7 +60,8 @@ namespace StudentEnrollmentSystem.Pages.ContactUs
             // Create a new Feedback object
             var newFeedback = new Feedback
             {
-                EnquiryId = GenerateNewEnquiryId(), // Manually set the enquiryId
+                EnquiryId = GenerateNewEnquiryId(), 
+                StudentId = studentId,
                 Category = Category,
                 Subject = Subject,
                 Message = Message,

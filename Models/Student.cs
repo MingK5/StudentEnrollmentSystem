@@ -97,6 +97,6 @@ namespace StudentEnrollmentSystem.Models
         [RegularExpression(@"^\d{10,15}$", ErrorMessage = "Enter a valid mobile number with country code (e.g., 60164915163)")]
         [Column("mobileNo")]
         public string? MobileNo { get; set; }
-        public ICollection<StudentUnavailability> StudentUnavailabilities { get; set; }
+        public ICollection<StudentUnavailability>? StudentUnavailabilities { get; set; }
     }
 }
