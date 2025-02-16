@@ -86,7 +86,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                 .ToList();
 
             ActiveCourses = lastCourses
-                .Where(e => e.StudentId == StudentId && (e.Action =="Enrol" || e.Action == "Add")) // Corrected StudentId type
+                .Where(e => e.StudentId == StudentId && (e.Action =="Enrol" || e.Action == "Add")) 
                 .Join(
                     _context.Courses,
                     enrol => enrol.CourseId,
