@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StudentEnrollmentSystem.Data;
@@ -41,6 +42,13 @@ namespace StudentEnrollmentSystem.Pages.Account
             if (NewPassword.Length < 8 || NewPassword.Length > 20)
             {
                 ErrorMessage = "Password must be between 8 to 20 characters.";
+                return Page();
+            }
+
+            // Check if the password contains at least one letter and one digit
+            if (!Regex.IsMatch(NewPassword, @"^(?=.*[A-Za-z])(?=.*\d).+$"))
+            {
+                ErrorMessage = "Password must contain at least one letter and one digit.";
                 return Page();
             }
 
@@ -100,4 +108,3 @@ namespace StudentEnrollmentSystem.Pages.Account
         }
     }
 }
-
