@@ -206,7 +206,6 @@
         let courseTable = document.getElementById("courseTable");
         let tbody = courseTable.querySelector("tbody");
 
-        // Add the new row to courseTable
         let newRow = tbody.insertRow();
 
         newRow.innerHTML = `
@@ -252,7 +251,6 @@
         let courseName = courseDetails[0].split(": ")[1] || "Unknown Course";
         let courseTime = courseDetails.length > 1 ? courseDetails[1].replace("]", "") : "N/A";
 
-        // Create table row for selected course
         let row = tbody.insertRow();
         let cellDay = row.insertCell(0);
         let cellTime = row.insertCell(1);
@@ -274,7 +272,6 @@
         cellAction.innerHTML = `<span style="color:blue; font-weight:bold">Add</span>`;
         cellCancel.innerHTML = `<button onclick="removeRow(this)">Cancel</button>`;
 
-        // Display the table if hidden
         table.style.display = "table";
         document.getElementById("btnSubmit").style.display = "block";
     }
@@ -326,14 +323,13 @@
     function addCoursesToForm() {
         let tbody = document.getElementById("courseTable").querySelector("tbody");
         let selectedCoursesContainer = document.getElementById("selectedCoursesContainer");
-        selectedCoursesContainer.innerHTML = ""; // Clear previous inputs
+        selectedCoursesContainer.innerHTML = ""; 
 
         Array.from(tbody.rows).forEach((row) => {
             let courseCode = row.cells[2].textContent;
             let courseReaosn = row.cells[4].textContent;
             let courseAction = row.cells[5].textContent;
 
-            // Create hidden inputs for form submission
             selectedCoursesContainer.appendChild(createHiddenInput('SelectedCourseIds', courseCode));
             selectedCoursesContainer.appendChild(createHiddenInput('SelectionReason', courseReaosn));
             selectedCoursesContainer.appendChild(createHiddenInput('SelectionAction', courseAction));

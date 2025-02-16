@@ -54,7 +54,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
             if (existingEnrollment == null)
             {
                 TempData["ErrorMessage"] = "Please enrol the courses first.";
-                return RedirectToPage("/Main"); // Redirect to main page
+                return RedirectToPage("/Main"); 
             }
 
             EnrolledCourses = _context.Enrolments

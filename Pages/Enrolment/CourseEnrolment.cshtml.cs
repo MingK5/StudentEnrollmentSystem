@@ -41,7 +41,6 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
                 return RedirectToPage("/Login");
             }
 
-            // Retrieve student info from claims
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
@@ -54,7 +53,7 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
             if (existingEnrollment != null)
             {
                 TempData["ErrorMessage"] = "You are already enrolled in this session!";
-                return RedirectToPage("/Main"); // Redirect to main page
+                return RedirectToPage("/Main"); 
             }
 
             AvailableCourses = await _context.Courses
