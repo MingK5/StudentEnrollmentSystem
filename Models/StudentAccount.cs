@@ -21,25 +21,25 @@ namespace StudentEnrollmentSystem.Models
 
         [Required]
         [Column("process")]
-        public string Process { get; set; } = string.Empty; // e.g., "Enroll", "Add", "Drop", "Payment"
+        public string Process { get; set; } = string.Empty; 
 
         [Column("particulars")]
-        public string? Particulars { get; set; } // Description of transaction
+        public string? Particulars { get; set; } 
 
         [Column("documentNo")]
-        public string? DocumentNo { get; set; } // Invoice, Receipt, or Credit Note Number
+        public string? DocumentNo { get; set; } 
 
         [Column("session")]
-        public string? Session { get; set; } // Semester Session (e.g., JAN2025)
+        public string? Session { get; set; } 
 
         [Column("status")]
-        public string? Status { get; set; } // e.g., "Approved", "Pending"
+        public string? Status { get; set; } 
 
         [Column("message")]
-        public string? Message { get; set; } // e.g., "Transaction recorded."
+        public string? Message { get; set; } 
 
         [Required]
         [Column("amount")]
-        public decimal Amount { get; set; } // Amount associated with transaction
+        public decimal Amount { get; set; } 
     }
 }

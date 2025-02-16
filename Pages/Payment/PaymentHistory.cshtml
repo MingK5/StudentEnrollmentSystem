@@ -33,7 +33,7 @@
             <th>Transaction Date</th>
             <th>Particulars</th>
             <th>Session</th>
-            <th>Receipt No</th> <!-- Updated Label -->
+            <th>Receipt No</th> 
             <th>Status</th>
             <th>Amount (RM)</th>
             <th>Receipt</th>
@@ -54,7 +54,7 @@
                     <td class="@((transaction.Status == "Approved") ? "text-success" : "text-danger")">
                         @transaction.Status
                     </td>
-                    <td>RM @(Math.Abs(transaction.Amount).ToString("0.00"))</td> <!-- Convert to Positive -->
+                    <td>RM @(Math.Abs(transaction.Amount).ToString("0.00"))</td> 
                     <td><a href="javascript:void(0);" onclick="openReceipt('@transaction.DocumentNo')">Print</a></td>
                 </tr>
                 count++;
@@ -71,6 +71,6 @@
 
 <script>
     function openReceipt(documentNo) {
-        window.open(`/Payment/Receipt?documentNo=${documentNo}`, '_blank', 'width=450,height=600'); // Adjusted width
+        window.open(`/Payment/Receipt?documentNo=${documentNo}`, '_blank', 'width=450,height=600'); 
     }
 </script>

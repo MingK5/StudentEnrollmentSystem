@@ -145,7 +145,7 @@
         });
 
         document.getElementById("evaluationForm").addEventListener("submit", function (event) {
-            event.preventDefault(); // Prevent default form submission
+            event.preventDefault(); 
 
             var organizationRate = document.getElementById("Evaluation_OrganizationRate").value;
             var clarityRate = document.getElementById("Evaluation_ClarityRate").value;
@@ -153,10 +153,10 @@
             var errorMessage = document.getElementById("errorMessage");
 
             if (organizationRate === "" || clarityRate === "" || materialRate === "") {
-                errorMessage.style.display = "block"; // Show error if any rating is missing
+                errorMessage.style.display = "block"; 
                 return;
             } else {
-                errorMessage.style.display = "none"; // Hide error if all ratings are selected
+                errorMessage.style.display = "none"; 
             }
 
             const formData = new FormData(this);
@@ -168,7 +168,7 @@
             .then(data => {
                 if (data.success) {
                     alert("Evaluation submitted successfully!");
-                    evaluatedCourses.push(courseSelect.value); // Mark as evaluated
+                    evaluatedCourses.push(courseSelect.value); 
                     updateDropdown();
                     resetCourseDetails();
                 } else {

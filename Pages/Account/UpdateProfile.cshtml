@@ -31,7 +31,6 @@
         <input type="hidden" asp-for="Student.StudentName" />
         <input type="hidden" asp-for="Student.Password" />
 
-        <!-- Permanent Home Address -->
         <fieldset class="section">
             <legend>Permanent Home Address</legend>
             <label>Address:</label>
@@ -54,7 +53,6 @@
             </select>
         </fieldset>
 
-        <!-- Current Mailing Address -->
         <fieldset class="section">
             <legend>Current Mailing Address</legend>
             <label>Address:</label>
@@ -77,7 +75,6 @@
             </select>
         </fieldset>
 
-        <!-- Contact Information -->
         <fieldset class="section">
             <legend>Contact Information</legend>
             <label>Primary Email:</label>
@@ -118,9 +115,7 @@
     </form>
 </div>
 
-<!-- Bootstrap JS for Dismissible Alerts -->
 <script>
-    // Perform Validation
 
     $(document).ready(function () {
         let countryStateData;
@@ -177,17 +172,14 @@
         });
     });
 
-    // Form validation before submit
     document.getElementById("profile-form").addEventListener("submit", function (event) {
         let isValid = true;
         let errorMessages = "<strong>Please correct the following errors:</strong><ul>";
 
-        // Remove previous error highlights
         document.querySelectorAll(".form-control, .country-dropdown, .state-dropdown").forEach(input => {
             input.classList.remove("input-error");
         });
 
-        // Mandatory fields and their user-friendly labels
         const requiredFields = {
             "HomeAddress": "Home Address",
             "HomePostcode": "Home Postcode",
@@ -207,7 +199,6 @@
             "EmergencyContactHp": "Emergency Contact Phone"
         };
 
-        // Check for missing required fields
         Object.keys(requiredFields).forEach(field => {
             let input = document.getElementById(`Student_${field}`);
             if (input && input.value.trim() === "") {
@@ -217,7 +208,6 @@
             }
         });
 
-        // Validate Country & State Dropdowns
         document.querySelectorAll("select.country-dropdown, select.state-dropdown").forEach(select => {
             if (select.value.trim() === "" || select.value.includes("Select")) {
                 isValid = false;
@@ -227,7 +217,6 @@
             }
         });
 
-        // Validate email format (HTML5 validation)
         document.querySelectorAll("[type='email']").forEach(input => {
             if (!input.validity.valid) {
                 isValid = false;
@@ -237,7 +226,6 @@
             }
         });
 
-        // Validate phone number format (Regex allowed)
         document.querySelectorAll("[type='text']").forEach(input => {
             if (input.value && (input.id.includes("PhoneNo") || input.id.includes("MobileNo") || input.id.includes("EmergencyContactHp"))) {
                 let phoneRegex = /^[0-9]{10,15}$/;
@@ -253,10 +241,8 @@
         if (!isValid) {
             errorMessages += "</ul>";
 
-            // Show the error message in the existing Bootstrap alert box
             let errorBox = document.querySelector(".alert-danger");
             if (!errorBox) {
-                // Create an error alert if not found
                 errorBox = document.createElement("div");
                 errorBox.className = "alert alert-danger alert-dismissible fade show";
                 errorBox.setAttribute("role", "alert");
@@ -267,7 +253,6 @@
                 `;
                 document.querySelector(".container").insertAdjacentElement("afterbegin", errorBox);
             } else {
-                // Update the error message if the alert box already exists
                 errorBox.innerHTML = `
                     <strong>Error:</strong>
                     <ul id="error-list">${errorMessages}</ul>
@@ -276,10 +261,8 @@
                 errorBox.style.display = "block";
             }
 
-            // **Scroll to the top to show the error box**
             window.scrollTo({ top: 0, behavior: "smooth" });
 
-            // Prevent form submission
             event.preventDefault();
             return false;
         }

@@ -124,13 +124,10 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 return RedirectToPage("/Login");
             }
 
-            // Reload student data and courses to avoid disappearing data
             await LoadStudentData(studentId);
 
-            // Normalize input for case-insensitive comparison
             string normalizedDay = Day.ToLower();
 
-            // Check if there is an existing unavailability with the same day and overlapping time
             bool isDuplicate = await _context.StudentUnavailability
                 .AnyAsync(su =>
                     su.StudentId == studentId &&
@@ -144,7 +141,6 @@ namespace StudentEnrollmentSystem.Pages.Enquiry
                 return Page();
             }
 
-            // If no duplicate, add the new unavailability entry
             var newUnavailability = new StudentUnavailability
             {
                 StudentUnavailabilityId = GetNextStudentUnavailabilityId(),

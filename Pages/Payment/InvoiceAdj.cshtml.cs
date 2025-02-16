@@ -31,13 +31,11 @@ namespace StudentEnrollmentSystem.Pages.Payment
         {
             var user = HttpContext.User;
 
-            // Redirect if user is not authenticated
             if (user == null || !user.Identity.IsAuthenticated)
             {
                 return RedirectToPage("/Login");
             }
 
-            // Fetch user details from claims
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
@@ -47,7 +45,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 return RedirectToPage("/Login");
             }
 
-            // Fetch available sessions for the student
             AvailableSessions = await _context.StudentAccounts
                 .Where(t => t.StudentId == StudentId)
                 .Select(t => t.Session)
@@ -55,7 +52,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 .OrderByDescending(s => s)
                 .ToListAsync();
 
-            // Default to latest session if none is selected
             SelectedSession = session ?? AvailableSessions.FirstOrDefault() ?? "Unknown";
 
             if (SelectedSession == "Unknown")
@@ -63,12 +59,12 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 return Page();
             }
 
-            // Fetch only Approved transactions related to the selected session
+
             StatementTransactions = await _context.StudentAccounts
                 .Where(t => t.StudentId == StudentId &&
                             t.Session == SelectedSession &&
-                            (t.Process == "Enrol" || t.Process == "Add" || t.Process == "Drop") && // Exclude "Payment"
-                            t.Status == "Approved") // Only Approved transactions
+                            (t.Process == "Enrol" || t.Process == "Add" || t.Process == "Drop") && 
+                            t.Status == "Approved")
                 .Select(t => new StatementTransaction
                 {
                     DocumentType = t.Process == "Enrol" ? "Invoice" :

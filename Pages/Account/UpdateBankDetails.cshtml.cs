@@ -38,18 +38,15 @@ namespace StudentEnrollmentSystem.Pages.Account
         {
             var user = HttpContext.User;
 
-            // Redirect to Login if user is not authenticated
             if (user == null || !user.Identity.IsAuthenticated)
             {
                 return RedirectToPage("/Login");
             }
 
-            // Fetch user details from Claims
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
 
-            // Load existing bank details from DB
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
             using (SqlConnection conn = new SqlConnection(connectionString))
             {

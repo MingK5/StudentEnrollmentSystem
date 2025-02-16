@@ -16,8 +16,8 @@
 
         .top-bar h2 {
             margin: 0;
-            text-align: center; /* Ensures the text inside is centered */
-            flex-grow: 1; /* Allows it to expand within the flex container */
+            text-align: center; 
+            flex-grow: 1; 
         }
 
     .form-inline {
@@ -38,7 +38,7 @@
     .label-container {
         font-weight: bold;
         white-space: nowrap;
-        width: 150px; /* Adjust width to align properly */
+        width: 150px; 
         text-align: left;
     }
 
@@ -102,12 +102,10 @@
 </style>
 
 <div id="printableArea">
-    <!-- Top Bar: Student Statement Title and Session Dropdown -->
     <div class="top-bar">
         <h2 id="statementTitle">Student Statement</h2>
     </div>
 
-    <!-- Filters: Date Pickers and Buttons -->
     <form method="get" class="transaction-container">
         <div class="label-container">
             <label><strong>Transaction Date:</strong></label>
@@ -128,9 +126,6 @@
         </div>
     </form>
 
-
-
-    <!-- Table to Display Transactions -->
     <table class="statement-table" id="statementTable" style="display: none;">
         <thead>
             <tr>

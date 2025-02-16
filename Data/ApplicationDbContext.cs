@@ -9,7 +9,6 @@ namespace StudentEnrollmentSystem.Data
         {
         }
 
-        // Define the tables (DbSets)
         public DbSet<Student> Students { get; set; } = null!;
         public DbSet<Enrol> Enrolments { get; set; } = null!;
         public DbSet<Evaluation> Evaluations { get; set; }
@@ -22,7 +21,6 @@ namespace StudentEnrollmentSystem.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Explicitly map tables
             modelBuilder.Entity<Student>().ToTable("Student");
             modelBuilder.Entity<StudentAccount>().ToTable("StudentAccount");
             modelBuilder.Entity<Evaluation>().ToTable("Evaluation");

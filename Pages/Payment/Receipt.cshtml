@@ -1,7 +1,7 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Payment.ReceiptModel
 @{
-    Layout = null; // Ensure this opens as a standalone pop-up
+    Layout = null;
     ViewData["Title"] = "Receipt";
 }
 
@@ -10,7 +10,6 @@
 <head>
     <title>Receipt - @Model.Transaction.DocumentNo</title>
     <script>
-        // Auto-close the pop-up window when the session expires
         window.addEventListener('storage', function (event) {
             if (event.key === 'sessionExpired' && event.newValue === 'true') {
                 window.close();
@@ -81,7 +80,7 @@
             <tr><th>Particulars</th><td>@Model.Transaction.Particulars</td></tr>
             <tr><th>Receipt No</th><td>@Model.Transaction.DocumentNo</td></tr> 
             <tr><th>Status</th><td>@Model.Transaction.Status</td></tr>
-            <tr><th>Amount</th><td>RM @(Math.Abs(Model.Transaction.Amount).ToString("0.00"))</td></tr> <!-- Convert to Positive -->
+            <tr><th>Amount</th><td>RM @(Math.Abs(Model.Transaction.Amount).ToString("0.00"))</td></tr> 
         </table>
         <button class="print-button" onclick="window.print()">Print</button>
     </div>

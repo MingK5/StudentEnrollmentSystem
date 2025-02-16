@@ -13,13 +13,11 @@ namespace StudentEnrollmentSystem.Pages.Payment
         {
             var user = HttpContext.User;
 
-            // Redirect to Login if user is not authenticated
             if (user == null || !user.Identity.IsAuthenticated)
             {
                 return RedirectToPage("/Login");
             }
 
-            // Fetch user details from Claims
             StudentName = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
             StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";

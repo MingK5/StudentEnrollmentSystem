@@ -30,7 +30,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 return NotFound();
             }
 
-            // Fetch the transaction details
             Transaction = await _context.StudentAccounts
                 .FirstOrDefaultAsync(t => t.DocumentNo == documentNo);
 
@@ -38,8 +37,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
             {
                 return NotFound();
             }
-
-            // Fetch the student's details from the Student table
             var student = await _context.Students
                 .Where(s => s.StudentId == Transaction.StudentId)
                 .Select(s => new
@@ -59,7 +56,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 StudentName = student.StudentName ?? "Unknown";
                 IdentificationNo = student.IdentificationNo ?? "Unknown";
 
-                // Concatenate full mailing address
                 MailingAddress = $"{student.MailAddress}, {student.MailPostcode}, {student.MailCity}, {student.MailState}, {student.MailCountry}";
             }
 

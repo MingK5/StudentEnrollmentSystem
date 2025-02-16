@@ -34,7 +34,6 @@ namespace StudentEnrollmentSystem.Pages.Account
                 return RedirectToPage("/Login");
             }
 
-            // Retrieve student info from claims
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
@@ -47,7 +46,6 @@ namespace StudentEnrollmentSystem.Pages.Account
                 return RedirectToPage("/Login");
             }
 
-            // Fetch student record
             Student = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == StudentId);
 
             if (Student == null)
@@ -77,9 +75,8 @@ namespace StudentEnrollmentSystem.Pages.Account
                 }
                 errorMessages += "</ul>";
 
-                // Store error messages in TempData to be shown via Bootstrap alert
                 TempData["ErrorMessage"] = errorMessages;
-                return Page(); // Stop submission if validation fails
+                return Page(); 
             }
 
             Console.WriteLine("[DEBUG] No validation errors. Processing form...");
@@ -100,7 +97,6 @@ namespace StudentEnrollmentSystem.Pages.Account
                 return NotFound();
             }
 
-            // Retain key student information
             existingStudent.HomeAddress = Student.HomeAddress;
             existingStudent.HomePostcode = Student.HomePostcode;
             existingStudent.HomeCity = Student.HomeCity;
@@ -119,7 +115,6 @@ namespace StudentEnrollmentSystem.Pages.Account
             existingStudent.EmergencyContactPerson = Student.EmergencyContactPerson;
             existingStudent.EmergencyContactHp = Student.EmergencyContactHp;
 
-            // Save changes
             _context.Students.Update(existingStudent);
             await _context.SaveChangesAsync();
 

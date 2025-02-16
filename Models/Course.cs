@@ -6,7 +6,7 @@ namespace StudentEnrollmentSystem.Models
     public class Course
     {
         [Key]
-        [Column("courseId")]  // Matches exact column name in SSMS
+        [Column("courseId")] 
         public string CourseId { get; set; } = string.Empty;
 
         [Required]

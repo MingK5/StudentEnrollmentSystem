@@ -21,12 +21,12 @@ namespace StudentEnrollmentSystem.Pages
         }
 
         [BindProperty]
-        public string StudentId { get; set; } = string.Empty; // Prevents null warnings
+        public string StudentId { get; set; } = string.Empty; 
 
         [BindProperty]
-        public string Password { get; set; } = string.Empty; // Prevents null warnings
+        public string Password { get; set; } = string.Empty; 
 
-        public string ErrorMessage { get; set; } = string.Empty; // Prevents null warnings
+        public string ErrorMessage { get; set; } = string.Empty;
 
         public async Task<IActionResult> OnPostAsync()
         {
@@ -38,21 +38,18 @@ namespace StudentEnrollmentSystem.Pages
 
             var student = _context.Students.FirstOrDefault(s => s.StudentId == StudentId);
 
-            // Ensure student exists
             if (student == null)
             {
                 ErrorMessage = "Invalid Student ID or Password.";
                 return Page();
             }
 
-            // Verify hashed password
             if (!BCrypt.Net.BCrypt.Verify(Password, student.Password))
             {
                 ErrorMessage = "Invalid Student ID or Password.";
                 return Page();
             }
 
-            // **Handle NULL values properly**
             string studentName = student.StudentName ?? "Unknown";
             string studentProgram = student.Program ?? "Unknown";
 
@@ -60,7 +57,7 @@ namespace StudentEnrollmentSystem.Pages
             {
                 new Claim(ClaimTypes.Name, studentName),
                 new Claim(ClaimTypes.NameIdentifier, student.StudentId),
-                new Claim("Program", studentProgram)  // **Fixed to prevent NULL values**
+                new Claim("Program", studentProgram) 
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);

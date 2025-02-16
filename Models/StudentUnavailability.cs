@@ -6,16 +6,16 @@ namespace StudentEnrollmentSystem.Models
     public class StudentUnavailability
     {
         [Key]
-        public int StudentUnavailabilityId { get; set; } // Primary Key
+        public int StudentUnavailabilityId { get; set; } 
 
         [ForeignKey("Student")]
-        public string StudentId { get; set; } = string.Empty; // Correct Foreign Key referencing Student
+        public string StudentId { get; set; } = string.Empty; 
 
-        public string Day { get; set; } = string.Empty; // Stores day of unavailability
+        public string Day { get; set; } = string.Empty;
 
-        public TimeSpan? StartTime { get; set; } // Start time of unavailability
+        public TimeSpan? StartTime { get; set; } 
 
-        public TimeSpan? EndTime { get; set; } // End time of unavailability
+        public TimeSpan? EndTime { get; set; }
 
         // Navigation property for Student
         public Student? Student { get; set; }

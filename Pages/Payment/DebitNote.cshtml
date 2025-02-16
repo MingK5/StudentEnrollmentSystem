@@ -1,7 +1,7 @@
 ﻿@page
 @model StudentEnrollmentSystem.Pages.Payment.DebitNoteModel
 @{
-    Layout = null; // Standalone pop-up
+    Layout = null; 
     ViewData["Title"] = "Debit Note";
 }
 
@@ -10,7 +10,6 @@
 <head>
     <title>Debit Note - @Model.Transaction.DocumentNo</title>
     <script>
-        // Auto-close the pop-up window when the session expires
         window.addEventListener('storage', function (event) {
             if (event.key === 'sessionExpired' && event.newValue === 'true') {
                 window.close();
@@ -32,7 +31,7 @@
         }
 
         h2 {
-            text-align: center; /* Centers the title */
+            text-align: center;
         }
 
         table {

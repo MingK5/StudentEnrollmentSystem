@@ -8,14 +8,11 @@
 
 <h2>Registration Summary</h2>
 
-<!-- Print Button -->
 <div class="text-right mb-3">
     <button class="btn btn-primary" onclick="printDiv('printableArea')">Print</button>
 </div>
 
-<!-- Printable Area -->
 <div id="printableArea">
-    <!-- Student Information Section -->
     <div class="card mb-3">
         <div class="card-body">
             <h5 class="card-title">Student Details</h5>
@@ -26,7 +23,6 @@
         </div>
     </div>
 
-    <!-- Enrolled Courses Section -->
     @if (Model.EnrolledCourses != null && Model.EnrolledCourses.Any())
     {
         <table class="table table-striped">
@@ -57,7 +53,6 @@
     }
 
     <br>
-    <!-- Timetable Section -->
     <h3>Timetable</h3>
     @if (Model.EnrolledCourses != null && Model.EnrolledCourses.Any())
     {
@@ -100,7 +95,6 @@
     }
 </div>
 
-<!-- JavaScript to trigger printing of the printable area -->
 <script>
     function printDiv(divId) {
         var printContents = document.getElementById(divId).innerHTML;

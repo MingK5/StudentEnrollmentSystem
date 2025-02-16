@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StudentEnrollmentSystem.Models
 {
-    [Table("Student")]  // Ensures EF maps to "Student" table in SQL Server
+    [Table("Student")] 
     public class Student
     {
         [Key]

@@ -50,21 +50,18 @@
     </div>
 </form>
 
-<!-- jQuery (Ensure this is included in your layout if not already present) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
     $(document).ready(function () {
-        let selectedBank = @Html.Raw(Json.Serialize(Model.BankName)); // Get selected bank from Razor Model
+        let selectedBank = @Html.Raw(Json.Serialize(Model.BankName)); 
 
         $.getJSON('/JSON/Banks.json', function (data) {
             let bankDropdown = $('#bankDropdown');
 
-            // Populate dropdown with banks
             $.each(data.banks, function (index, bank) {
                 let option = $('<option></option>').attr('value', bank.code).text(bank.name);
 
-                // Auto-select previously saved bank
                 if (bank.code === selectedBank) {
                     option.attr("selected", "selected");
                 }
@@ -75,7 +72,6 @@
             console.error('Error loading bank list from JSON.');
         });
 
-        // Client-side validation on form submit
         $("#updateBankForm").submit(function (e) {
             let selectedBank = $("#bankDropdown").val();
             if (!selectedBank) {
@@ -92,6 +88,6 @@
     .bank-name-container {
         display: flex;
         align-items: center;
-        gap: 10px; /* Spacing between label and error message */
+        gap: 10px;
     }
 </style>

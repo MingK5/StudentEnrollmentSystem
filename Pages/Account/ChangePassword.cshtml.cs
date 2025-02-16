@@ -45,7 +45,6 @@ namespace StudentEnrollmentSystem.Pages.Account
                 return Page();
             }
 
-            // Check if the password contains at least one letter and one digit
             if (!Regex.IsMatch(NewPassword, @"^(?=.*[A-Za-z])(?=.*\d).+$"))
             {
                 ErrorMessage = "Password must contain at least one letter and one digit.";
@@ -73,14 +72,12 @@ namespace StudentEnrollmentSystem.Pages.Account
                 return Page();
             }
 
-            // Check if existing password is correct
             if (!BCrypt.Net.BCrypt.Verify(ExistingPassword, student.Password))
             {
                 ErrorMessage = "Existing password is incorrect.";
                 return Page();
             }
 
-            // Hash the new password and update the database
             student.Password = BCrypt.Net.BCrypt.HashPassword(NewPassword);
             _context.Students.Update(student);
             await _context.SaveChangesAsync();
@@ -93,13 +90,11 @@ namespace StudentEnrollmentSystem.Pages.Account
         {
             var user = HttpContext.User;
 
-            // Redirect to Login if user is not authenticated
             if (user == null || !user.Identity.IsAuthenticated)
             {
                 return RedirectToPage("/Login");
             }
 
-            // Fetch user details from Claims
             StudentName = user.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? "Unknown";
             StudentId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";

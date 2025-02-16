@@ -32,14 +32,12 @@ namespace StudentEnrollmentSystem.Pages.Payment
         {
             var user = HttpContext.User;
 
-            // Redirect if not authenticated
             if (user == null || !user.Identity.IsAuthenticated)
             {
                 Console.WriteLine("DEBUG: User not authenticated, redirecting to Login.");
                 return RedirectToPage("/Login");
             }
 
-            // Fetch user details from claims
             StudentId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             StudentName = user.FindFirst(ClaimTypes.Name)?.Value ?? "Unknown";
             Program = user.FindFirst("Program")?.Value ?? "Unknown";
@@ -50,7 +48,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 return RedirectToPage("/Login");
             }
 
-            // Fetch student information (Identification No)
             var student = await _context.Students
                 .Where(s => EF.Functions.Collate(s.StudentId.Trim(), "SQL_Latin1_General_CP1_CI_AS") == StudentId.Trim())
                 .Select(s => new { s.StudentName, s.Program, s.IdentificationNo })
@@ -65,9 +62,8 @@ namespace StudentEnrollmentSystem.Pages.Payment
 
             Console.WriteLine($"DEBUG: Fetching transactions for StudentId: {StudentId}");
 
-            // Fetch all transactions for the student, excluding failed ones
             var allTransactions = await _context.StudentAccounts
-                .Where(t => t.StudentId == StudentId && t.Status != "Failed")  // Exclude failed transactions
+                .Where(t => t.StudentId == StudentId && t.Status != "Failed") 
                 .OrderBy(t => t.TransactionDate)
                 .ToListAsync();
 
@@ -84,7 +80,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 }
             }
 
-            // Identify the latest "Payment" transaction
             var lastPayment = allTransactions.LastOrDefault(t => t.Process == "Payment");
 
             if (lastPayment != null)
@@ -96,17 +91,14 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 Console.WriteLine("DEBUG: No previous payment found.");
             }
 
-            // Filter transactions happening AFTER the latest payment, also ensuring they are not failed
             PendingTransactions = lastPayment != null
                 ? allTransactions.Where(t => t.TransactionDate > lastPayment.TransactionDate && t.Process != "Payment").ToList()
                 : allTransactions.Where(t => t.Process != "Payment").ToList();
 
             Console.WriteLine($"DEBUG: Pending transactions count: {PendingTransactions.Count}");
 
-            // Compute net amount payable
             NetAmount = PendingTransactions.Sum(t => t.Amount);
 
-            // **Extract the latest session from any transaction (not just Enrol)**
             var latestTransaction = allTransactions.LastOrDefault();
             Session = latestTransaction?.Session ?? "Unknown";
 
@@ -147,7 +139,6 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 return RedirectToPage();
             }
 
-            // Fetch the latest ENROL transaction for the session number
             var latestEnrolTransaction = await _context.StudentAccounts
                 .Where(t => t.StudentId == StudentId && t.Process == "Enrol")
                 .OrderByDescending(t => t.TransactionDate)
@@ -155,11 +146,9 @@ namespace StudentEnrollmentSystem.Pages.Payment
 
             string sessionNumber = latestEnrolTransaction?.Session ?? "Unknown";
 
-            // Generate new transaction and document numbers
             int newTransactionId = await GenerateNewTransactionId();
             string newDocumentNo = await GenerateNewDocumentNo();
 
-            // Generate new transaction
             var newTransaction = new StudentAccount
             {
                 TransactionId = newTransactionId,
@@ -168,10 +157,10 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 Particulars = "Tuition Fee Payment",
                 DocumentNo = newDocumentNo,
                 TransactionDate = DateTime.Now,
-                Session = sessionNumber, // Assign session from latest Enrol
+                Session = sessionNumber,
                 Status = "Approved",
                 Message = "Payment has been successfully recorded.",
-                Amount = -amountDue // Negative to cancel out the balance
+                Amount = -amountDue 
             };
 
             try
@@ -202,11 +191,11 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 .OrderByDescending(t => t.TransactionId)
                 .FirstOrDefaultAsync();
 
-            int newId = 1001; // Default starting value
+            int newId = 1001; 
 
             if (lastTransaction != null)
             {
-                newId = lastTransaction.TransactionId + 1; // Increment latest transaction ID
+                newId = lastTransaction.TransactionId + 1;
             }
 
             return newId;
@@ -226,7 +215,7 @@ namespace StudentEnrollmentSystem.Pages.Payment
                 newNumber++;
             }
 
-            return $"DOC{newNumber:D8}";  // Formats as DOC00000001, DOC00000002, etc.
+            return $"DOC{newNumber:D8}"; 
         }
     }
 }
