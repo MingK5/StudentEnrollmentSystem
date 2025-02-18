@@ -123,7 +123,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                     StudentId = StudentId,
                     CourseId = SelectedCourseIds[i],
                     Session = _configuration["Session"],
-                    DatePerformed = DateTime.UtcNow,
+                    DatePerformed = DateTime.Now,
                     Action = SelectionAction[i],
                     Reason = SelectionReason[i],
                     Status = "Approved"
@@ -159,7 +159,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                 var transaction = new StudentAccount
                 {
                     TransactionId = newTransactionId,
-                    TransactionDate = DateTime.UtcNow,
+                    TransactionDate = DateTime.Now,
                     StudentId = StudentId,
                     Process = "Add",
                     Particulars = "Tuition Fee",
@@ -182,7 +182,7 @@ namespace StudentEnrollmentSystem.Pages.AddDrop
                 var transaction = new StudentAccount
                 {
                     TransactionId = newTransactionId,
-                    TransactionDate = DateTime.UtcNow,
+                    TransactionDate = DateTime.Now,
                     StudentId = StudentId,
                     Process = "Drop",
                     Particulars = "Drop Courses",

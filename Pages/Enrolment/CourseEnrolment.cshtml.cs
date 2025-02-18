@@ -90,7 +90,7 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
                     StudentId = StudentId,
                     CourseId = courseId,
                     Session = _configuration["Session"],
-                    DatePerformed = DateTime.UtcNow,
+                    DatePerformed = DateTime.Now,
                     Action = "Enrol",
                     Reason = null,
                     Status = "Approved"
@@ -112,7 +112,7 @@ namespace StudentEnrollmentSystem.Pages.Enrolment
             var transaction = new StudentAccount
             {
                 TransactionId = newTransactionId,
-                TransactionDate = DateTime.UtcNow,
+                TransactionDate = DateTime.Now,
                 StudentId = StudentId,
                 Process = "Enrol",
                 Particulars = "Tuition Fee",
